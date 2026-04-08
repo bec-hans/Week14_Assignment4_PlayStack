@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PlayStack | Tier List</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Questrial&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="logo-wrap" aria-label="PlayStack brand">
+        <div class="logo-mark" aria-hidden="true"></div>
+        <p class="eyebrow">Collection Ranking View</p>
+        <h1>PlayStack Tier System</h1>
+      </div>
+      <nav class="top-nav" aria-label="Primary navigation">
+        <a class="nav-link" href="./index.html">Library</a>
+        <a class="nav-link active" href="./tier.html">Tier List</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="panel">
+        <div class="section-title-wrap">
+          <h2>Shareable Tier List</h2>
+          <p class="muted">
+            Curate and rank your games. Copy a link and share your tier board.
+          </p>
+        </div>
+        <div class="card-actions">
+          <button id="copy-tier-link" class="btn btn-solid">Copy Share Link</button>
+          <button id="reset-tier-link" class="btn">Reset to Saved Data</button>
+        </div>
+      </section>
+
+      <section id="tier-board" class="tier-grid" aria-label="Tier board"></section>
+    </main>
+    <script src="./tier.js"></script>
+  </body>
+</html>

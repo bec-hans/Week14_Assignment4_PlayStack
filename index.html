@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PlayStack | Game Backlog Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Questrial&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="logo-wrap" aria-label="PlayStack brand">
+        <div class="logo-mark" aria-hidden="true"></div>
+        <p class="eyebrow">Backlog Curation System</p>
+        <h1>PlayStack</h1>
+      </div>
+      <nav class="top-nav" aria-label="Primary navigation">
+        <a class="nav-link active" href="./index.html">Library</a>
+        <a class="nav-link" href="./tier.html">Tier List</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="panel" aria-label="Add and discover games">
+        <div class="section-title-wrap">
+          <h2>Add & Manage Games</h2>
+          <p class="muted">Build your collection game by game.</p>
+        </div>
+
+        <form id="add-game-form" class="form-grid" aria-label="Add game form">
+          <label>
+            <span>Game Title</span>
+            <input
+              id="game-title"
+              name="title"
+              type="text"
+              placeholder="Type title..."
+              autocomplete="off"
+              required
+            />
+          </label>
+          <label>
+            <span>Platform</span>
+            <input
+              id="game-platform"
+              name="platform"
+              type="text"
+              placeholder="PC, PS5, Switch..."
+              required
+            />
+          </label>
+          <label>
+            <span>Status</span>
+            <select id="game-status" name="status" aria-label="Initial game status">
+              <option value="Wishlist">Wishlist</option>
+              <option value="Playing">Playing</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </label>
+          <button type="submit" class="btn btn-solid">Add Game</button>
+        </form>
+
+        <ul id="suggestions-list" class="suggestions" aria-label="Game suggestions"></ul>
+      </section>
+
+      <section class="panel controls-panel" aria-label="Search and filter games">
+        <div class="section-title-wrap">
+          <h2>Search & Filter</h2>
+          <p class="muted">Find the right game instantly.</p>
+        </div>
+        <div class="controls-grid">
+          <label>
+            <span>Search</span>
+            <input id="search-input" type="text" placeholder="Search title..." />
+          </label>
+          <label>
+            <span>Sort By</span>
+            <select id="sort-select">
+              <option value="recent">Recently Added</option>
+              <option value="rating">User Rating</option>
+              <option value="alphabetical">Alphabetical</option>
+            </select>
+          </label>
+          <label>
+            <span>Genre</span>
+            <select id="genre-filter">
+              <option value="all">All Genres</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="board" aria-label="Game status categories">
+        <article class="status-column panel">
+          <div class="status-head">
+            <h3>Wishlist</h3>
+            <span id="wishlist-count">0</span>
+          </div>
+          <div id="wishlist-list" class="game-list" aria-label="Wishlist games"></div>
+        </article>
+        <article class="status-column panel">
+          <div class="status-head">
+            <h3>Playing</h3>
+            <span id="playing-count">0</span>
+          </div>
+          <div id="playing-list" class="game-list" aria-label="Playing games"></div>
+        </article>
+        <article class="status-column panel">
+          <div class="status-head">
+            <h3>Completed</h3>
+            <span id="completed-count">0</span>
+          </div>
+          <div id="completed-list" class="game-list" aria-label="Completed games"></div>
+        </article>
+      </section>
+    </main>
+
+    <dialog id="game-modal" class="game-modal" aria-labelledby="modal-title">
+      <form method="dialog" class="modal-close-wrap">
+        <button class="btn btn-ghost" aria-label="Close game detail view">Close</button>
+      </form>
+      <section id="modal-body"></section>
+    </dialog>
+
+    <script>
+      window.PLAYSTACK_CONFIG = {
+        rawgApiKey: "",
+        makeWebhookUrl: ""
+      };
+    </script>
+    <script src="./app.js"></script>
+  </body>
+</html>
