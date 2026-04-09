@@ -262,6 +262,18 @@ textarea {
   gap: 0.35rem;
 }
 
+/* Panel toolbars (e.g. tier share section): keep buttons content-sized, not full width */
+.panel > .card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.panel > .card-actions .btn {
+  width: auto;
+}
+
 .card-actions .btn-small {
   width: 100%;
 }
