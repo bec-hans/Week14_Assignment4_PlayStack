@@ -35,7 +35,6 @@ const refs = {
   modalBody: document.querySelector("#modal-body"),
   tierQuickModal: document.querySelector("#tier-quick-modal"),
   tierQuickSave: document.querySelector("#tier-quick-save"),
-  tierQuickClose: document.querySelector("#tier-quick-close"),
   tierQuickCloseX: document.querySelector("#tier-quick-close-x"),
   lists: {
     Wishlist: document.querySelector("#wishlist-list"),
@@ -722,7 +721,6 @@ const setupEvents = () => {
   });
 
   refs.tierQuickSave?.addEventListener("click", handleQuickTierSave);
-  refs.tierQuickClose?.addEventListener("click", handleCloseQuickTierModal);
   refs.tierQuickCloseX?.addEventListener("click", handleCloseQuickTierModal);
   refs.tierQuickModal?.addEventListener("close", () => {
     state.quickTierGameId = null;
