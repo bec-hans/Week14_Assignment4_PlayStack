@@ -17,7 +17,7 @@
       <div class="header-left">
         <div class="logo-wrap" aria-label="PlayStack brand">
           <div class="logo-mark" aria-hidden="true"></div>
-          <p class="eyebrow">Backlog Curation System</p>
+          <p class="eyebrow">Game Log Tracker</p>
           <h1>PlayStack</h1>
         </div>
         <button
@@ -128,17 +128,24 @@
             <option value="Completed">Completed</option>
           </select>
         </label>
-        <label>
-          <span>User Rating (1–5)</span>
-          <input
-            id="add-game-user-rating"
-            name="userRating"
-            type="number"
-            min="1"
-            max="5"
-            placeholder="Optional"
-          />
-        </label>
+        <div class="star-rating-field">
+          <span>User Rating</span>
+          <p class="muted star-rating-hint">Optional — click a star (1–5).</p>
+          <input type="hidden" id="add-game-user-rating-value" name="userRating" value="" />
+          <div
+            id="add-game-star-group"
+            class="star-rating"
+            role="radiogroup"
+            aria-label="User rating from 1 to 5 stars"
+            data-star-hidden="add-game-user-rating-value"
+          >
+            <button type="button" class="star-rating-btn" data-star-rating-btn data-star-value="1" aria-label="1 out of 5 stars" aria-pressed="false">★</button>
+            <button type="button" class="star-rating-btn" data-star-rating-btn data-star-value="2" aria-label="2 out of 5 stars" aria-pressed="false">★</button>
+            <button type="button" class="star-rating-btn" data-star-rating-btn data-star-value="3" aria-label="3 out of 5 stars" aria-pressed="false">★</button>
+            <button type="button" class="star-rating-btn" data-star-rating-btn data-star-value="4" aria-label="4 out of 5 stars" aria-pressed="false">★</button>
+            <button type="button" class="star-rating-btn" data-star-rating-btn data-star-value="5" aria-label="5 out of 5 stars" aria-pressed="false">★</button>
+          </div>
+        </div>
         <label>
           <span>Notes</span>
           <textarea id="add-game-notes" name="notes" rows="4" placeholder="Personal notes or mini-review..."></textarea>
@@ -147,7 +154,40 @@
           <input id="add-game-tier-checkbox" type="checkbox" name="addToTier" />
           <span>Add to Tier List</span>
         </label>
-        <p class="muted add-tier-hint">When checked, the game appears in the <strong>None</strong> tier until you move it.</p>
+        <div id="add-game-tier-panel" class="tier-radio-panel" hidden>
+          <fieldset id="add-game-tier-fieldset" class="tier-radio-fieldset" disabled aria-describedby="add-tier-hint">
+            <legend class="tier-radio-legend">Tier level</legend>
+            <div class="tier-radio-grid" role="presentation">
+              <label class="tier-radio-option">
+                <input type="radio" name="add-game-tier" value="S" />
+                <span>S</span>
+              </label>
+              <label class="tier-radio-option">
+                <input type="radio" name="add-game-tier" value="A" />
+                <span>A</span>
+              </label>
+              <label class="tier-radio-option">
+                <input type="radio" name="add-game-tier" value="B" />
+                <span>B</span>
+              </label>
+              <label class="tier-radio-option">
+                <input type="radio" name="add-game-tier" value="C" />
+                <span>C</span>
+              </label>
+              <label class="tier-radio-option">
+                <input type="radio" name="add-game-tier" value="D" />
+                <span>D</span>
+              </label>
+              <label class="tier-radio-option">
+                <input type="radio" name="add-game-tier" value="None" checked />
+                <span>None</span>
+              </label>
+            </div>
+          </fieldset>
+        </div>
+        <p id="add-tier-hint" class="muted add-tier-hint">
+          When checked, choose which tier row the game starts in on the tier list page.
+        </p>
         <div class="add-game-actions">
           <button type="submit" class="btn btn-solid">Add Game</button>
           <button type="button" class="btn" id="add-game-cancel">Cancel</button>

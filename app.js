@@ -17,9 +17,11 @@ const refs = {
   titleInput: document.querySelector("#add-game-title"),
   platformInput: document.querySelector("#add-game-platform"),
   statusInput: document.querySelector("#add-game-status"),
-  userRatingInput: document.querySelector("#add-game-user-rating"),
+  addStarGroup: document.querySelector("#add-game-star-group"),
   notesInput: document.querySelector("#add-game-notes"),
   tierCheckbox: document.querySelector("#add-game-tier-checkbox"),
+  addTierPanel: document.querySelector("#add-game-tier-panel"),
+  addTierFieldset: document.querySelector("#add-game-tier-fieldset"),
   addGameCancel: document.querySelector("#add-game-cancel"),
   addGameCloseX: document.querySelector("#add-game-close-x"),
   suggestionsList: document.querySelector("#suggestions-list"),
@@ -63,6 +65,33 @@ const createId = () =>
 const formatStars = (rating) => {
   if (!rating || rating < 1) return "☆☆☆☆☆";
   return `${"★".repeat(rating)}${"☆".repeat(5 - rating)}`;
+};
+
+const syncStarRatingButtons = (groupEl, value) => {
+  if (!groupEl) return;
+  const hiddenId = groupEl.getAttribute("data-star-hidden");
+  const hidden = hiddenId ? document.getElementById(hiddenId) : null;
+  const num = Number(value);
+  const clamped = Number.isInteger(num) && num >= 1 && num <= 5 ? num : 0;
+  if (hidden) {
+    hidden.value = clamped > 0 ? String(clamped) : "";
+  }
+  groupEl.querySelectorAll("[data-star-rating-btn]").forEach((starBtn) => {
+    const starVal = Number(starBtn.getAttribute("data-star-value"));
+    const on = clamped >= starVal;
+    starBtn.classList.toggle("star-rating-btn--on", on);
+    starBtn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+};
+
+const handleStarRatingClick = (event) => {
+  const btn = event.target.closest("[data-star-rating-btn]");
+  if (!btn) return;
+  const group = btn.closest(".star-rating");
+  if (!group) return;
+  const val = Number(btn.getAttribute("data-star-value"));
+  if (!Number.isInteger(val) || val < 1 || val > 5) return;
+  syncStarRatingButtons(group, val);
 };
 
 const normalizeGame = (partialGame) => {
@@ -195,6 +224,7 @@ const renderModal = () => {
   const game = state.games.find((item) => item.id === state.activeGameId);
   if (!game) return;
 
+  const initialRating = game.userRating && game.userRating >= 1 ? game.userRating : 0;
   refs.modalBody.innerHTML = `
     <section class="detail-grid">
       <h2 id="modal-title">${game.title}</h2>
@@ -205,10 +235,23 @@ const renderModal = () => {
           ${STATUSES.map((status) => `<option value="${status}" ${status === game.status ? "selected" : ""}>${status}</option>`).join("")}
         </select>
       </label>
-      <label>
-        <span>Your Rating (1-5)</span>
-        <input id="detail-user-rating" type="number" min="1" max="5" value="${game.userRating || ""}" />
-      </label>
+      <div class="star-rating-field">
+        <span>Your Rating</span>
+        <input type="hidden" id="detail-user-rating-value" value="${initialRating > 0 ? initialRating : ""}" />
+        <div
+          id="detail-star-group"
+          class="star-rating"
+          role="radiogroup"
+          aria-label="User rating from 1 to 5 stars"
+          data-star-hidden="detail-user-rating-value"
+        >
+          <button type="button" class="star-rating-btn" data-star-rating-btn data-star-value="1" aria-label="1 out of 5 stars" aria-pressed="false">★</button>
+          <button type="button" class="star-rating-btn" data-star-rating-btn data-star-value="2" aria-label="2 out of 5 stars" aria-pressed="false">★</button>
+          <button type="button" class="star-rating-btn" data-star-rating-btn data-star-value="3" aria-label="3 out of 5 stars" aria-pressed="false">★</button>
+          <button type="button" class="star-rating-btn" data-star-rating-btn data-star-value="4" aria-label="4 out of 5 stars" aria-pressed="false">★</button>
+          <button type="button" class="star-rating-btn" data-star-rating-btn data-star-value="5" aria-label="5 out of 5 stars" aria-pressed="false">★</button>
+        </div>
+      </div>
       <p><strong>RAWG Rating:</strong> ${game.rawgRating ?? "Not available yet"}</p>
       <label>
         <span>Notes / Mini Review</span>
@@ -218,6 +261,7 @@ const renderModal = () => {
     </section>
   `;
 
+  syncStarRatingButtons(refs.modalBody.querySelector("#detail-star-group"), initialRating);
   refs.modal.showModal();
 };
 
@@ -315,8 +359,24 @@ const handleCloseAddModal = () => {
   refs.addGameModal?.close();
 };
 
+const syncAddTierPanelFromCheckbox = () => {
+  const on = Boolean(refs.tierCheckbox?.checked);
+  if (refs.addTierPanel) {
+    refs.addTierPanel.hidden = !on;
+  }
+  if (refs.addTierFieldset) {
+    refs.addTierFieldset.disabled = !on;
+  }
+};
+
+const handleTierCheckboxChange = () => {
+  syncAddTierPanelFromCheckbox();
+};
+
 const handleOpenAddModal = () => {
   if (!refs.addGameModal) return;
+  syncStarRatingButtons(refs.addStarGroup, 0);
+  syncAddTierPanelFromCheckbox();
   refs.addGameModal.showModal();
   setAddModalExpanded(true);
   refs.titleInput?.focus();
@@ -329,13 +389,20 @@ const handleAddGame = async (event) => {
   const status = refs.statusInput.value;
   if (!title || !platform) return;
 
-  const userRatingRaw = Number(refs.userRatingInput?.value);
+  const userRatingRaw = Number(document.querySelector("#add-game-user-rating-value")?.value);
   const userRating =
     Number.isInteger(userRatingRaw) && userRatingRaw >= 1 && userRatingRaw <= 5
       ? userRatingRaw
       : 0;
   const notes = refs.notesInput?.value?.trim() || "";
   const addToTierList = Boolean(refs.tierCheckbox?.checked);
+  let tier = null;
+  if (addToTierList) {
+    const selectedTier = document.querySelector('input[name="add-game-tier"]:checked');
+    const value = selectedTier?.value;
+    const allowed = ["S", "A", "B", "C", "D", "None"];
+    tier = value && allowed.includes(value) ? value : "None";
+  }
 
   const metadata = await fetchSingleRawg(title);
   addGame({
@@ -348,7 +415,7 @@ const handleAddGame = async (event) => {
     rawgRating: metadata?.rawgRating ?? null,
     userRating,
     notes,
-    tier: addToTierList ? "None" : null
+    tier
   });
 
   handleCloseAddModal();
@@ -409,7 +476,7 @@ const handleModalSave = (event) => {
   if (!game) return;
 
   const nextStatus = document.querySelector("#detail-status")?.value || game.status;
-  const userRatingRaw = Number(document.querySelector("#detail-user-rating")?.value);
+  const userRatingRaw = Number(document.querySelector("#detail-user-rating-value")?.value);
   const userRating =
     Number.isInteger(userRatingRaw) && userRatingRaw >= 1 && userRatingRaw <= 5
       ? userRatingRaw
@@ -433,9 +500,13 @@ const setupEvents = () => {
   refs.addGameModal?.addEventListener("close", () => {
     setAddModalExpanded(false);
     refs.addForm?.reset();
+    syncStarRatingButtons(refs.addStarGroup, 0);
+    syncAddTierPanelFromCheckbox();
     state.suggestions = [];
     renderSuggestions();
   });
+  refs.tierCheckbox?.addEventListener("change", handleTierCheckboxChange);
+  refs.addGameModal?.addEventListener("click", handleStarRatingClick);
   refs.titleInput?.addEventListener("input", handleSuggestionSearch);
   refs.searchInput.addEventListener("input", (event) => {
     state.search = event.target.value;
@@ -460,7 +531,10 @@ const setupEvents = () => {
     listElement.addEventListener("click", handleCardActions);
   });
 
-  refs.modalBody.addEventListener("click", handleModalSave);
+  refs.modalBody.addEventListener("click", (event) => {
+    handleStarRatingClick(event);
+    handleModalSave(event);
+  });
 };
 
 const init = () => {

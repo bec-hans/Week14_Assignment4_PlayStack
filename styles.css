@@ -28,6 +28,25 @@ p {
   margin: 0;
 }
 
+/* Page headings and subheadings — uppercase; game titles stay mixed case */
+.site-header h1,
+.section-title-wrap h2,
+.status-head h3,
+.add-modal-title,
+#add-game-heading,
+.top-nav .nav-link,
+.tier-row h3,
+.tier-radio-legend {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+#game-modal #modal-title,
+.game-card h4 {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
 .site-header {
   display: flex;
   flex-direction: column;
@@ -270,11 +289,100 @@ textarea {
   margin-top: -0.35rem;
 }
 
+.tier-radio-panel {
+  margin-top: 0.35rem;
+}
+
+.tier-radio-fieldset {
+  border: 1.8px solid var(--line);
+  border-radius: calc(var(--radius) - 0.25rem);
+  padding: 0.65rem 0.75rem 0.85rem;
+  margin: 0;
+}
+
+.tier-radio-legend {
+  padding: 0 0.35rem;
+  font: inherit;
+  font-size: 0.95rem;
+}
+
+.tier-radio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.tier-radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  border: 1.5px solid var(--line);
+  padding: 0.45rem 0.5rem;
+}
+
+.tier-radio-option:has(input:checked) {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+}
+
+.tier-radio-option input[type="radio"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--accent);
+  margin: 0;
+}
+
+@media (min-width: 480px) {
+  .tier-radio-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
 .add-game-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.25rem;
+}
+
+.star-rating-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.star-rating {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  align-items: center;
+}
+
+.star-rating-btn {
+  font-size: 1.85rem;
+  line-height: 1;
+  padding: 0.1rem 0.2rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--text);
+  opacity: 0.28;
+}
+
+.star-rating-btn--on {
+  opacity: 1;
+}
+
+.star-rating-btn:hover,
+.star-rating-btn:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.star-rating-hint {
+  font-size: 0.85rem;
+  margin-top: 0;
 }
 
 .game-modal::backdrop {
@@ -297,6 +405,11 @@ textarea {
   gap: 1rem;
 }
 
+.tier-board-stack {
+  display: grid;
+  gap: 0.85rem;
+}
+
 .tier-row {
   border: 2px solid var(--line);
   padding: 0.75rem;
@@ -304,6 +417,60 @@ textarea {
 
 .tier-row h3 {
   margin-bottom: 0.6rem;
+}
+
+.tier-cards-wrap {
+  min-height: 7rem;
+  border: 1.5px dashed var(--line);
+  padding: 0.65rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-content: flex-start;
+  background: #060606;
+  color: #ffffff;
+}
+
+.tier-cards-wrap.drag-over {
+  outline: 2px solid var(--accent);
+}
+
+.tier-cards-wrap .muted {
+  color: #f2f2f2;
+}
+
+.tier-game-card {
+  width: 8.5rem;
+  border: 1.5px solid var(--line);
+  padding: 0.35rem;
+  display: grid;
+  gap: 0.35rem;
+  background: #fff;
+  color: var(--text);
+  cursor: grab;
+}
+
+.tier-game-card.drag-over {
+  outline: 2px solid var(--accent);
+}
+
+.tier-game-card:active {
+  cursor: grabbing;
+}
+
+.tier-game-image {
+  width: 100%;
+  height: 4.8rem;
+  object-fit: cover;
+  border: 1.2px solid var(--line);
+}
+
+.tier-game-title {
+  font-size: 0.8rem;
+  line-height: 1.2;
+  text-align: center;
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .tier-tag {

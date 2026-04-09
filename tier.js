@@ -9,6 +9,7 @@ const refs = {
 
 let games = [];
 let isSharedView = false;
+let draggedGameId = null;
 
 const loadSavedGames = () => {
   try {
@@ -41,38 +42,33 @@ const getTierGroups = () => {
 
 const renderBoard = () => {
   const tierGroups = getTierGroups();
-  refs.board.innerHTML = TIERS.map((tier) => {
+  refs.board.innerHTML = TIERS
+    .map((tier) => {
     const cards = tierGroups[tier]
       .map(
         (game) => `
-      <article class="game-card">
-        <div class="game-card-header">
-          <div>
-            <h4>${game.title}</h4>
-            <p class="muted">${game.platform || "Unknown platform"}</p>
-          </div>
-          <span class="pill">${game.genre || "Unknown"}</span>
-        </div>
-        <label>
-          <span>Change Tier</span>
-          <select data-tier-change="${game.id}">
-            ${TIERS.map((value) => `<option value="${value}" ${value === getEffectiveTier(game) ? "selected" : ""}>${value}</option>`).join("")}
-          </select>
-        </label>
+      <article class="tier-game-card" data-tier-card data-game-id="${game.id}" draggable="${isSharedView ? "false" : "true"}">
+        <img
+          class="tier-game-image"
+          src="${game.cover || "https://placehold.co/220x130/ffffff/060606?text=No+Cover"}"
+          alt="${game.title} cover image"
+        />
+        <h4 class="tier-game-title">${game.title}</h4>
       </article>
     `
       )
       .join("");
 
     return `
-      <section class="tier-row">
+      <section class="tier-row" data-tier-row data-tier="${tier}">
         <h3><span class="tier-tag">${tier}</span> Tier</h3>
-        <div class="game-list">
+        <div class="tier-cards-wrap" data-tier-dropzone data-tier="${tier}">
           ${cards || '<p class="muted">No games in this tier yet.</p>'}
         </div>
       </section>
     `;
-  }).join("");
+  })
+    .join("");
 };
 
 const decodeSharedData = () => {
@@ -90,14 +86,114 @@ const encodeSharedData = () => {
   return encodeURIComponent(btoa(JSON.stringify(games)));
 };
 
-const handleTierChange = (event) => {
-  const id = event.target.getAttribute("data-tier-change");
-  if (!id || isSharedView) return;
-  games = games.map((game) =>
-    game.id === id ? { ...game, tier: event.target.value } : game
-  );
+const saveAndRender = () => {
   saveGames();
   renderBoard();
+};
+
+const moveGameToTierAndPosition = (gameId, nextTier, beforeGameId = null) => {
+  const draggedIndex = games.findIndex((game) => game.id === gameId);
+  if (draggedIndex < 0) return;
+
+  const [dragged] = games.splice(draggedIndex, 1);
+  const updated = { ...dragged, tier: nextTier };
+
+  if (beforeGameId) {
+    const beforeIndex = games.findIndex((game) => game.id === beforeGameId);
+    if (beforeIndex >= 0) {
+      games.splice(beforeIndex, 0, updated);
+      saveAndRender();
+      return;
+    }
+  }
+
+  let lastTierIndex = -1;
+  games.forEach((game, index) => {
+    if (getEffectiveTier(game) === nextTier) {
+      lastTierIndex = index;
+    }
+  });
+
+  if (lastTierIndex >= 0) {
+    games.splice(lastTierIndex + 1, 0, updated);
+  } else {
+    games.push(updated);
+  }
+
+  saveAndRender();
+};
+
+const clearDropStates = () => {
+  refs.board
+    .querySelectorAll(".tier-cards-wrap, .tier-game-card")
+    .forEach((element) => element.classList.remove("drag-over"));
+};
+
+const handleDragStart = (event) => {
+  if (isSharedView) return;
+  const card = event.target.closest("[data-tier-card]");
+  if (!card) return;
+  draggedGameId = card.getAttribute("data-game-id");
+  if (!draggedGameId) return;
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", draggedGameId);
+};
+
+const handleDragEnd = () => {
+  clearDropStates();
+  draggedGameId = null;
+};
+
+const handleDragOver = (event) => {
+  if (isSharedView) return;
+  const dropZone = event.target.closest("[data-tier-dropzone]");
+  if (!dropZone) return;
+  event.preventDefault();
+  event.dataTransfer.dropEffect = "move";
+};
+
+const handleDragEnter = (event) => {
+  if (isSharedView) return;
+  const dropZone = event.target.closest("[data-tier-dropzone]");
+  if (dropZone) {
+    dropZone.classList.add("drag-over");
+  }
+  const card = event.target.closest("[data-tier-card]");
+  if (card) {
+    card.classList.add("drag-over");
+  }
+};
+
+const handleDragLeave = (event) => {
+  const zone = event.target.closest(".tier-cards-wrap");
+  if (zone && !zone.contains(event.relatedTarget)) {
+    zone.classList.remove("drag-over");
+  }
+
+  const card = event.target.closest("[data-tier-card]");
+  if (card && !card.contains(event.relatedTarget)) {
+    card.classList.remove("drag-over");
+  }
+};
+
+const handleDrop = (event) => {
+  if (isSharedView) return;
+  const dropZone = event.target.closest("[data-tier-dropzone]");
+  if (!dropZone) return;
+  event.preventDefault();
+
+  const droppedId = event.dataTransfer.getData("text/plain") || draggedGameId;
+  if (!droppedId) return;
+
+  const targetTier = dropZone.getAttribute("data-tier");
+  if (!targetTier || !TIERS.includes(targetTier)) return;
+
+  const targetCard = event.target.closest("[data-tier-card]");
+  const beforeGameId = targetCard?.getAttribute("data-game-id") || null;
+
+  if (beforeGameId === droppedId) return;
+
+  moveGameToTierAndPosition(droppedId, targetTier, beforeGameId);
 };
 
 const copyLink = async () => {
@@ -124,7 +220,12 @@ const init = () => {
   }
 
   renderBoard();
-  refs.board.addEventListener("change", handleTierChange);
+  refs.board.addEventListener("dragstart", handleDragStart);
+  refs.board.addEventListener("dragend", handleDragEnd);
+  refs.board.addEventListener("dragover", handleDragOver);
+  refs.board.addEventListener("dragenter", handleDragEnter);
+  refs.board.addEventListener("dragleave", handleDragLeave);
+  refs.board.addEventListener("drop", handleDrop);
   refs.copyButton.addEventListener("click", copyLink);
   refs.resetButton.addEventListener("click", resetSharedView);
 };
