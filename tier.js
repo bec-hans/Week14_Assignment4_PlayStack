@@ -3,8 +3,7 @@ const TIERS = ["S", "A", "B", "C", "D", "None"];
 
 const refs = {
   board: document.querySelector("#tier-board"),
-  copyButton: document.querySelector("#copy-tier-link"),
-  resetButton: document.querySelector("#reset-tier-link")
+  copyButton: document.querySelector("#copy-tier-link")
 };
 
 let games = [];
@@ -205,11 +204,6 @@ const copyLink = async () => {
   }, 1200);
 };
 
-const resetSharedView = () => {
-  if (!isSharedView) return;
-  window.location.href = `${window.location.origin}${window.location.pathname}`;
-};
-
 const init = () => {
   const sharedData = decodeSharedData();
   if (sharedData) {
@@ -226,8 +220,7 @@ const init = () => {
   refs.board.addEventListener("dragenter", handleDragEnter);
   refs.board.addEventListener("dragleave", handleDragLeave);
   refs.board.addEventListener("drop", handleDrop);
-  refs.copyButton.addEventListener("click", copyLink);
-  refs.resetButton.addEventListener("click", resetSharedView);
+  refs.copyButton?.addEventListener("click", copyLink);
 };
 
 init();
