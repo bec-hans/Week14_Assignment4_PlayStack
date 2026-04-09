@@ -190,17 +190,20 @@ const renderCard = (game) => `
         : ""
     }
     <div class="game-card-header">
-      <div>
-        <h4>${game.title}</h4>
-        <p class="muted">${game.platform}</p>
-      </div>
       <span class="pill">${game.genre || "Unknown"}</span>
+      <h4>${game.title}</h4>
     </div>
     <div class="stars" aria-label="User rating">${formatStars(game.userRating)}</div>
     <div class="card-actions">
       <button class="btn btn-small" data-open-detail="${game.id}" aria-label="Open details for ${game.title}">Details</button>
-      <button class="btn btn-small" data-tier-add="${game.id}" aria-label="Add ${game.title} to tier list">Add to Tier</button>
-      <button class="btn btn-small" data-delete="${game.id}" aria-label="Delete ${game.title}">Delete</button>
+      <div class="card-tier-row">
+        <button class="btn btn-small btn-tier" data-tier-add="${game.id}" aria-label="Add ${game.title} to tier list">Add to Tier</button>
+        <button class="btn btn-icon" data-delete="${game.id}" aria-label="Delete ${game.title}">
+          <svg viewBox="0 0 24 24" class="trash-icon" aria-hidden="true" focusable="false">
+            <path d="M4 7h16M9 7V5h6v2m-7 0l1 12h6l1-12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
     </div>
   </article>
 `;
