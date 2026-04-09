@@ -285,10 +285,16 @@ const migrateStoredTiers = (list) => {
   return { games: next, changed };
 };
 
+const applySharedViewChrome = () => {
+  document.documentElement.classList.add("tier-shared-view");
+  document.title = "PlayStack | Shared Tier List";
+};
+
 const init = () => {
   const sharedData = decodeSharedData();
   if (sharedData) {
     isSharedView = true;
+    applySharedViewChrome();
     games = migrateStoredTiers(sharedData).games;
   } else {
     const { games: migrated, changed } = migrateStoredTiers(loadSavedGames());

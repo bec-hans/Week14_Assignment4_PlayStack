@@ -21,6 +21,15 @@ body {
   padding: 1rem;
 }
 
+/* Opened from a copied share link (?data=…): tier board only, no Library nav or share UI */
+html.tier-shared-view .top-nav {
+  display: none;
+}
+
+html.tier-shared-view #tier-share-panel {
+  display: none;
+}
+
 h1,
 h2,
 h3,
