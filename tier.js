@@ -1,5 +1,5 @@
 const STORAGE_KEY = "playstack.games";
-const TIERS = ["S", "A", "B", "C", "D"];
+const TIERS = ["S", "A", "B", "C", "D", "F"];
 
 const refs = {
   board: document.querySelector("#tier-board"),
@@ -264,7 +264,15 @@ const migrateStoredTiers = (list) => {
   let changed = false;
   const next = list.map((game) => {
     const t = game.tier;
-    if (t === "None" || t === "" || (t != null && !TIERS.includes(t))) {
+    if (t === "None") {
+      changed = true;
+      return { ...game, tier: "F" };
+    }
+    if (t === "") {
+      changed = true;
+      return { ...game, tier: null };
+    }
+    if (t != null && !TIERS.includes(t)) {
       changed = true;
       return { ...game, tier: null };
     }

@@ -1,6 +1,6 @@
 const STORAGE_KEY = "playstack.games";
 const STATUSES = ["Wishlist", "Playing", "Completed"];
-const TIER_OPTIONS = ["S", "A", "B", "C", "D"];
+const TIER_OPTIONS = ["S", "A", "B", "C", "D", "F"];
 
 const state = {
   games: [],
@@ -120,7 +120,10 @@ const normalizeGame = (partialGame) => {
     ? partialGame.tier
     : null;
 
-  if (tier === "None" || tier === "") {
+  if (tier === "None") {
+    tier = "F";
+  }
+  if (tier === "") {
     tier = null;
   }
   if (tier != null && !TIER_OPTIONS.includes(tier)) {
@@ -255,7 +258,7 @@ const renderModal = () => {
   const initialRating = game.userRating && game.userRating >= 1 ? game.userRating : 0;
   const addToTier =
     game.tier !== null && game.tier !== undefined && game.tier !== "" && TIER_OPTIONS.includes(game.tier);
-  const tierValue = addToTier ? game.tier : "S";
+  const tierValue = addToTier ? game.tier : "F";
   refs.modalBody.innerHTML = `
     <section class="detail-grid">
       <h2 id="modal-title">${game.title}</h2>
@@ -544,7 +547,7 @@ const handleAddGame = async (event) => {
     const selectedTier = document.querySelector('input[name="add-game-tier"]:checked');
     const value = selectedTier?.value;
     const allowed = TIER_OPTIONS;
-    tier = value && allowed.includes(value) ? value : "S";
+    tier = value && allowed.includes(value) ? value : "F";
   }
 
   const metadata = await fetchSingleRawg(title);
@@ -582,7 +585,7 @@ const syncQuickTierRadios = (game) => {
   const current =
     game.tier !== null && game.tier !== undefined && game.tier !== "" && TIER_OPTIONS.includes(game.tier)
       ? game.tier
-      : "S";
+      : "F";
   modal.querySelectorAll('input[name="quick-tier"]').forEach((input) => {
     input.checked = input.value === current;
   });
@@ -605,7 +608,7 @@ const handleQuickTierSave = () => {
   if (!state.quickTierGameId) return;
   const selected = refs.tierQuickModal?.querySelector('input[name="quick-tier"]:checked');
   const value = selected?.value;
-  const tier = value && TIER_OPTIONS.includes(value) ? value : "S";
+  const tier = value && TIER_OPTIONS.includes(value) ? value : "F";
   updateGame(state.quickTierGameId, { tier });
   handleCloseQuickTierModal();
 };
@@ -686,7 +689,7 @@ const handleModalSave = (event) => {
   if (addToTier) {
     const selectedTier = document.querySelector('input[name="detail-tier"]:checked')?.value;
     const allowed = TIER_OPTIONS;
-    tier = selectedTier && allowed.includes(selectedTier) ? selectedTier : "S";
+    tier = selectedTier && allowed.includes(selectedTier) ? selectedTier : "F";
   }
 
   updateGame(game.id, {
