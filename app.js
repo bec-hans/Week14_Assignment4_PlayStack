@@ -246,10 +246,6 @@ const renderModal = () => {
       <h2 id="modal-title">${game.title}</h2>
       <p class="muted">${game.genre} · ${game.releaseYear}</p>
       <label>
-        <span>Game Title</span>
-        <input id="detail-title" type="text" value="${game.title}" />
-      </label>
-      <label>
         <span>Platform</span>
         <input id="detail-platform" type="text" value="${game.platform}" />
       </label>
@@ -603,7 +599,6 @@ const handleModalSave = (event) => {
   const game = state.games.find((item) => item.id === state.activeGameId);
   if (!game) return;
 
-  const title = document.querySelector("#detail-title")?.value?.trim() || game.title;
   const platform = document.querySelector("#detail-platform")?.value?.trim() || game.platform;
   const nextStatus = document.querySelector("#detail-status")?.value || game.status;
   const userRatingRaw = Number(document.querySelector("#detail-user-rating-value")?.value);
@@ -621,7 +616,6 @@ const handleModalSave = (event) => {
   }
 
   updateGame(game.id, {
-    title,
     platform,
     status: nextStatus,
     userRating,
