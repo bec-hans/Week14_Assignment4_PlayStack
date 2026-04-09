@@ -327,7 +327,32 @@ textarea {
 }
 
 .tier-quick-modal {
-  width: min(26rem, 94vw);
+  width: min(28rem, calc(100vw - 2rem));
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.tier-quick-modal .tier-radio-fieldset {
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* Narrower wrapping grid so six tier options never force horizontal scroll */
+.tier-quick-modal .tier-radio-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tier-quick-modal .tier-radio-option {
+  min-width: 0;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+@media (min-width: 480px) {
+  .tier-quick-modal .tier-radio-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .tier-quick-actions {
