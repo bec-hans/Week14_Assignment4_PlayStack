@@ -14,7 +14,7 @@ PlayStack is a clean, interactive backlog tracker for organizing games into `Wis
   - Status updates
   - RAWG community rating
 - Search and filter by title, sort by recent/rating/alphabetical, and filter by genre
-- Tier List page with S/A/B/C/D/None tiers and shareable link export
+- Tier List page with S/A/B/C/D tiers and shareable link export
 - Make.com webhook trigger on game add event (for automation workflows like weekly email summaries)
 
 ## Tech Stack

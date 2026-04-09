@@ -350,7 +350,7 @@ textarea {
   min-width: 0;
 }
 
-/* Narrower wrapping grid so six tier options never force horizontal scroll */
+/* Narrower wrapping grid so tier options never force horizontal scroll */
 .tier-quick-modal .tier-radio-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }

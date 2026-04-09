@@ -1,6 +1,6 @@
 const STORAGE_KEY = "playstack.games";
 const STATUSES = ["Wishlist", "Playing", "Completed"];
-const TIER_OPTIONS = ["S", "A", "B", "C", "D", "None"];
+const TIER_OPTIONS = ["S", "A", "B", "C", "D"];
 
 const state = {
   games: [],
@@ -116,11 +116,15 @@ const syncDetailTierPanelFromCheckbox = () => {
 };
 
 const normalizeGame = (partialGame) => {
-  let tier;
-  if (Object.prototype.hasOwnProperty.call(partialGame, "tier")) {
-    tier = partialGame.tier;
-  } else {
-    tier = "None";
+  let tier = Object.prototype.hasOwnProperty.call(partialGame, "tier")
+    ? partialGame.tier
+    : null;
+
+  if (tier === "None" || tier === "") {
+    tier = null;
+  }
+  if (tier != null && !TIER_OPTIONS.includes(tier)) {
+    tier = null;
   }
 
   return {
@@ -249,8 +253,9 @@ const renderModal = () => {
   if (!game) return;
 
   const initialRating = game.userRating && game.userRating >= 1 ? game.userRating : 0;
-  const addToTier = game.tier !== null && game.tier !== undefined && game.tier !== "";
-  const tierValue = addToTier ? game.tier : "None";
+  const addToTier =
+    game.tier !== null && game.tier !== undefined && game.tier !== "" && TIER_OPTIONS.includes(game.tier);
+  const tierValue = addToTier ? game.tier : "S";
   refs.modalBody.innerHTML = `
     <section class="detail-grid">
       <h2 id="modal-title">${game.title}</h2>
@@ -295,16 +300,14 @@ const renderModal = () => {
         <fieldset id="detail-tier-fieldset" class="tier-radio-fieldset" ${addToTier ? "" : "disabled"}>
           <legend class="tier-radio-legend">Tier level</legend>
           <div class="tier-radio-grid" role="presentation">
-            ${["S", "A", "B", "C", "D", "None"]
-              .map(
+            ${TIER_OPTIONS.map(
                 (value) => `
               <label class="tier-radio-option">
                 <input type="radio" name="detail-tier" value="${value}" ${tierValue === value ? "checked" : ""} />
                 <span>${value}</span>
               </label>
             `
-              )
-              .join("")}
+              ).join("")}
           </div>
         </fieldset>
       </div>
@@ -540,8 +543,8 @@ const handleAddGame = async (event) => {
   if (addToTierList) {
     const selectedTier = document.querySelector('input[name="add-game-tier"]:checked');
     const value = selectedTier?.value;
-    const allowed = ["S", "A", "B", "C", "D", "None"];
-    tier = value && allowed.includes(value) ? value : "None";
+    const allowed = TIER_OPTIONS;
+    tier = value && allowed.includes(value) ? value : "S";
   }
 
   const metadata = await fetchSingleRawg(title);
@@ -579,7 +582,7 @@ const syncQuickTierRadios = (game) => {
   const current =
     game.tier !== null && game.tier !== undefined && game.tier !== "" && TIER_OPTIONS.includes(game.tier)
       ? game.tier
-      : "None";
+      : "S";
   modal.querySelectorAll('input[name="quick-tier"]').forEach((input) => {
     input.checked = input.value === current;
   });
@@ -602,7 +605,7 @@ const handleQuickTierSave = () => {
   if (!state.quickTierGameId) return;
   const selected = refs.tierQuickModal?.querySelector('input[name="quick-tier"]:checked');
   const value = selected?.value;
-  const tier = value && TIER_OPTIONS.includes(value) ? value : "None";
+  const tier = value && TIER_OPTIONS.includes(value) ? value : "S";
   updateGame(state.quickTierGameId, { tier });
   handleCloseQuickTierModal();
 };
@@ -682,8 +685,8 @@ const handleModalSave = (event) => {
   let tier = null;
   if (addToTier) {
     const selectedTier = document.querySelector('input[name="detail-tier"]:checked')?.value;
-    const allowed = ["S", "A", "B", "C", "D", "None"];
-    tier = selectedTier && allowed.includes(selectedTier) ? selectedTier : "None";
+    const allowed = TIER_OPTIONS;
+    tier = selectedTier && allowed.includes(selectedTier) ? selectedTier : "S";
   }
 
   updateGame(game.id, {

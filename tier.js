@@ -1,5 +1,5 @@
 const STORAGE_KEY = "playstack.games";
-const TIERS = ["S", "A", "B", "C", "D", "None"];
+const TIERS = ["S", "A", "B", "C", "D"];
 
 const refs = {
   board: document.querySelector("#tier-board"),
@@ -260,13 +260,28 @@ const copyLink = async () => {
   }, 1200);
 };
 
+const migrateStoredTiers = (list) => {
+  let changed = false;
+  const next = list.map((game) => {
+    const t = game.tier;
+    if (t === "None" || t === "" || (t != null && !TIERS.includes(t))) {
+      changed = true;
+      return { ...game, tier: null };
+    }
+    return game;
+  });
+  return { games: next, changed };
+};
+
 const init = () => {
   const sharedData = decodeSharedData();
   if (sharedData) {
     isSharedView = true;
-    games = sharedData;
+    games = migrateStoredTiers(sharedData).games;
   } else {
-    games = loadSavedGames();
+    const { games: migrated, changed } = migrateStoredTiers(loadSavedGames());
+    games = migrated;
+    if (changed) saveGames();
   }
 
   renderBoard();
