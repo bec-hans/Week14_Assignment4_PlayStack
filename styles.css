@@ -224,7 +224,7 @@ textarea {
   border: 1.8px solid var(--line);
   padding: 0.55rem;
   display: grid;
-  gap: 0.45rem;
+  gap: 0.28rem;
   background-image: linear-gradient(transparent 94%, rgba(0, 183, 255, 0.2) 100%);
   cursor: grab;
 }
@@ -240,11 +240,13 @@ textarea {
 
 .game-card-header {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.28rem;
 }
 
 .game-card-header h4 {
   width: 100%;
+  margin: 0;
+  line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
@@ -268,16 +270,29 @@ textarea {
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  min-width: 0;
+}
+
+.card-tier-row .btn-small {
+  width: auto;
 }
 
 .pill {
   border: 1.5px solid var(--line);
-  padding: 0.1rem 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.2rem 0.6rem;
   font-size: 0.78rem;
+  white-space: nowrap;
 }
 
 .stars {
   letter-spacing: 0.05em;
+  margin: 0 0 0.5rem;
+  line-height: 1;
 }
 
 .btn-icon {
@@ -297,7 +312,7 @@ textarea {
 
 .btn-tier {
   white-space: nowrap;
-  min-width: 7.2rem;
+  min-width: 0;
   flex: 1;
 }
 
@@ -564,15 +579,23 @@ textarea {
   }
 
   .board {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .game-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-content: start;
   }
 
   .tier-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .board {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1400px) {
+  .game-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
   }
 }
