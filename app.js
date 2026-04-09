@@ -95,6 +95,16 @@ const handleStarRatingClick = (event) => {
   syncStarRatingButtons(group, val);
 };
 
+const syncDetailTierPanelFromCheckbox = () => {
+  const checkbox = refs.modalBody.querySelector("#detail-tier-checkbox");
+  const panel = refs.modalBody.querySelector("#detail-tier-panel");
+  const fieldset = refs.modalBody.querySelector("#detail-tier-fieldset");
+  if (!checkbox || !panel || !fieldset) return;
+  const on = Boolean(checkbox.checked);
+  panel.hidden = !on;
+  fieldset.disabled = !on;
+};
+
 const normalizeGame = (partialGame) => {
   let tier;
   if (Object.prototype.hasOwnProperty.call(partialGame, "tier")) {
@@ -229,10 +239,20 @@ const renderModal = () => {
   if (!game) return;
 
   const initialRating = game.userRating && game.userRating >= 1 ? game.userRating : 0;
+  const addToTier = game.tier !== null && game.tier !== undefined && game.tier !== "";
+  const tierValue = addToTier ? game.tier : "None";
   refs.modalBody.innerHTML = `
     <section class="detail-grid">
       <h2 id="modal-title">${game.title}</h2>
-      <p class="muted">${game.platform} · ${game.genre} · ${game.releaseYear}</p>
+      <p class="muted">${game.genre} · ${game.releaseYear}</p>
+      <label>
+        <span>Game Title</span>
+        <input id="detail-title" type="text" value="${game.title}" />
+      </label>
+      <label>
+        <span>Platform</span>
+        <input id="detail-platform" type="text" value="${game.platform}" />
+      </label>
       <label>
         <span>Status</span>
         <select id="detail-status">
@@ -261,11 +281,33 @@ const renderModal = () => {
         <span>Notes / Mini Review</span>
         <textarea id="detail-notes" rows="5" placeholder="Your experience...">${game.notes || ""}</textarea>
       </label>
+      <label class="checkbox-label">
+        <input id="detail-tier-checkbox" type="checkbox" ${addToTier ? "checked" : ""} />
+        <span>Add to Tier List</span>
+      </label>
+      <div id="detail-tier-panel" class="tier-radio-panel" ${addToTier ? "" : "hidden"}>
+        <fieldset id="detail-tier-fieldset" class="tier-radio-fieldset" ${addToTier ? "" : "disabled"}>
+          <legend class="tier-radio-legend">Tier level</legend>
+          <div class="tier-radio-grid" role="presentation">
+            ${["S", "A", "B", "C", "D", "None"]
+              .map(
+                (value) => `
+              <label class="tier-radio-option">
+                <input type="radio" name="detail-tier" value="${value}" ${tierValue === value ? "checked" : ""} />
+                <span>${value}</span>
+              </label>
+            `
+              )
+              .join("")}
+          </div>
+        </fieldset>
+      </div>
       <button id="save-detail-btn" class="btn btn-solid" aria-label="Save game details">Save Details</button>
     </section>
   `;
 
   syncStarRatingButtons(refs.modalBody.querySelector("#detail-star-group"), initialRating);
+  syncDetailTierPanelFromCheckbox();
   refs.modal.showModal();
 };
 
@@ -561,6 +603,8 @@ const handleModalSave = (event) => {
   const game = state.games.find((item) => item.id === state.activeGameId);
   if (!game) return;
 
+  const title = document.querySelector("#detail-title")?.value?.trim() || game.title;
+  const platform = document.querySelector("#detail-platform")?.value?.trim() || game.platform;
   const nextStatus = document.querySelector("#detail-status")?.value || game.status;
   const userRatingRaw = Number(document.querySelector("#detail-user-rating-value")?.value);
   const userRating =
@@ -568,11 +612,21 @@ const handleModalSave = (event) => {
       ? userRatingRaw
       : 0;
   const notes = document.querySelector("#detail-notes")?.value?.trim() || "";
+  const addToTier = Boolean(document.querySelector("#detail-tier-checkbox")?.checked);
+  let tier = null;
+  if (addToTier) {
+    const selectedTier = document.querySelector('input[name="detail-tier"]:checked')?.value;
+    const allowed = ["S", "A", "B", "C", "D", "None"];
+    tier = selectedTier && allowed.includes(selectedTier) ? selectedTier : "None";
+  }
 
   updateGame(game.id, {
+    title,
+    platform,
     status: nextStatus,
     userRating,
-    notes
+    notes,
+    tier
   });
 
   refs.modal.close();
@@ -626,6 +680,11 @@ const setupEvents = () => {
   refs.modalBody.addEventListener("click", (event) => {
     handleStarRatingClick(event);
     handleModalSave(event);
+  });
+  refs.modalBody.addEventListener("change", (event) => {
+    if (event.target.getAttribute("id") === "detail-tier-checkbox") {
+      syncDetailTierPanelFromCheckbox();
+    }
   });
 };
 
