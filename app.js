@@ -5,6 +5,7 @@ const state = {
   games: [],
   suggestions: [],
   activeGameId: null,
+  draggedGameId: null,
   search: "",
   sort: "recent",
   genre: "all"
@@ -182,7 +183,7 @@ const renderSuggestions = () => {
 };
 
 const renderCard = (game) => `
-  <article class="game-card">
+  <article class="game-card" data-status-card data-game-id="${game.id}" draggable="true">
     ${
       game.cover
         ? `<img class="game-cover" src="${game.cover}" alt="${game.title} cover artwork" />`
@@ -198,8 +199,6 @@ const renderCard = (game) => `
     <div class="stars" aria-label="User rating">${formatStars(game.userRating)}</div>
     <div class="card-actions">
       <button class="btn btn-small" data-open-detail="${game.id}" aria-label="Open details for ${game.title}">Details</button>
-      <button class="btn btn-small" data-move="${game.id}" data-direction="prev" aria-label="Move ${game.title} to previous status">Prev</button>
-      <button class="btn btn-small" data-move="${game.id}" data-direction="next" aria-label="Move ${game.title} to next status">Next</button>
       <button class="btn btn-small" data-tier-add="${game.id}" aria-label="Add ${game.title} to tier list">Add to Tier</button>
       <button class="btn btn-small" data-delete="${game.id}" aria-label="Delete ${game.title}">Delete</button>
     </div>
@@ -216,6 +215,8 @@ const renderLists = () => {
   STATUSES.forEach((status) => {
     const gamesInStatus = filtered.filter((game) => game.status === status);
     refs.counts[status].textContent = String(gamesInStatus.length);
+    refs.lists[status].setAttribute("data-status-dropzone", "true");
+    refs.lists[status].setAttribute("data-status", status);
     refs.lists[status].innerHTML = gamesInStatus.map(renderCard).join("");
   });
 };
@@ -289,17 +290,105 @@ const deleteGame = (gameId) => {
   setGames(state.games.filter((game) => game.id !== gameId));
 };
 
-const moveStatus = (gameId, direction) => {
-  const game = state.games.find((item) => item.id === gameId);
-  if (!game) return;
+const moveGameToStatusAndPosition = (gameId, nextStatus, beforeGameId = null) => {
+  const fromIndex = state.games.findIndex((game) => game.id === gameId);
+  if (fromIndex < 0) return;
+  const [dragged] = state.games.splice(fromIndex, 1);
+  const updated = normalizeGame({ ...dragged, status: nextStatus });
 
-  const currentIndex = STATUSES.indexOf(game.status);
-  if (currentIndex < 0) return;
+  if (beforeGameId) {
+    const beforeIndex = state.games.findIndex((game) => game.id === beforeGameId);
+    if (beforeIndex >= 0) {
+      state.games.splice(beforeIndex, 0, updated);
+      saveGames();
+      renderLists();
+      return;
+    }
+  }
 
-  const nextIndex = direction === "next" ? currentIndex + 1 : currentIndex - 1;
-  if (nextIndex < 0 || nextIndex >= STATUSES.length) return;
+  let lastInStatus = -1;
+  state.games.forEach((game, index) => {
+    if (game.status === nextStatus) {
+      lastInStatus = index;
+    }
+  });
 
-  updateGame(gameId, { status: STATUSES[nextIndex] });
+  if (lastInStatus >= 0) {
+    state.games.splice(lastInStatus + 1, 0, updated);
+  } else {
+    state.games.push(updated);
+  }
+
+  saveGames();
+  renderLists();
+};
+
+const clearStatusDropStates = () => {
+  Object.values(refs.lists).forEach((listElement) => {
+    listElement.classList.remove("drag-over");
+  });
+  document.querySelectorAll("[data-status-card]").forEach((card) => {
+    card.classList.remove("drag-over");
+  });
+};
+
+const handleStatusDragStart = (event) => {
+  const card = event.target.closest("[data-status-card]");
+  if (!card) return;
+  const gameId = card.getAttribute("data-game-id");
+  if (!gameId) return;
+  state.draggedGameId = gameId;
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", gameId);
+};
+
+const handleStatusDragEnd = () => {
+  clearStatusDropStates();
+  state.draggedGameId = null;
+};
+
+const handleStatusDragOver = (event) => {
+  const dropZone = event.target.closest("[data-status-dropzone]");
+  if (!dropZone) return;
+  event.preventDefault();
+  event.dataTransfer.dropEffect = "move";
+};
+
+const handleStatusDragEnter = (event) => {
+  const dropZone = event.target.closest("[data-status-dropzone]");
+  if (dropZone) {
+    dropZone.classList.add("drag-over");
+  }
+  const card = event.target.closest("[data-status-card]");
+  if (card) {
+    card.classList.add("drag-over");
+  }
+};
+
+const handleStatusDragLeave = (event) => {
+  const dropZone = event.target.closest("[data-status-dropzone]");
+  if (dropZone && !dropZone.contains(event.relatedTarget)) {
+    dropZone.classList.remove("drag-over");
+  }
+  const card = event.target.closest("[data-status-card]");
+  if (card && !card.contains(event.relatedTarget)) {
+    card.classList.remove("drag-over");
+  }
+};
+
+const handleStatusDrop = (event) => {
+  const dropZone = event.target.closest("[data-status-dropzone]");
+  if (!dropZone) return;
+  event.preventDefault();
+  const droppedId = event.dataTransfer.getData("text/plain") || state.draggedGameId;
+  if (!droppedId) return;
+  const nextStatus = dropZone.getAttribute("data-status");
+  if (!nextStatus || !STATUSES.includes(nextStatus)) return;
+  const targetCard = event.target.closest("[data-status-card]");
+  const beforeGameId = targetCard?.getAttribute("data-game-id") || null;
+  if (beforeGameId === droppedId) return;
+  moveGameToStatusAndPosition(droppedId, nextStatus, beforeGameId);
+  clearStatusDropStates();
 };
 
 const safeFetchJson = async (url) => {
@@ -445,7 +534,6 @@ const handleCardActions = (event) => {
   const openId = event.target.getAttribute("data-open-detail");
   const deleteId = event.target.getAttribute("data-delete");
   const tierId = event.target.getAttribute("data-tier-add");
-  const moveId = event.target.getAttribute("data-move");
 
   if (openId) {
     state.activeGameId = openId;
@@ -461,11 +549,6 @@ const handleCardActions = (event) => {
   if (tierId) {
     updateGame(tierId, { tier: "None" });
     return;
-  }
-
-  if (moveId) {
-    const direction = event.target.getAttribute("data-direction");
-    moveStatus(moveId, direction);
   }
 };
 
@@ -529,6 +612,12 @@ const setupEvents = () => {
 
   Object.values(refs.lists).forEach((listElement) => {
     listElement.addEventListener("click", handleCardActions);
+    listElement.addEventListener("dragstart", handleStatusDragStart);
+    listElement.addEventListener("dragend", handleStatusDragEnd);
+    listElement.addEventListener("dragover", handleStatusDragOver);
+    listElement.addEventListener("dragenter", handleStatusDragEnter);
+    listElement.addEventListener("dragleave", handleStatusDragLeave);
+    listElement.addEventListener("drop", handleStatusDrop);
   });
 
   refs.modalBody.addEventListener("click", (event) => {
