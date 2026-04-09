@@ -35,6 +35,18 @@ p {
   margin-bottom: 1rem;
 }
 
+.header-left {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.header-add-btn {
+  white-space: nowrap;
+}
+
 .logo-wrap {
   border: 2px solid var(--line);
   padding: 1rem;
@@ -226,6 +238,45 @@ textarea {
   padding: 1rem;
 }
 
+.add-game-modal {
+  width: min(36rem, 96vw);
+}
+
+.add-modal-title {
+  margin-bottom: 0.75rem;
+}
+
+.add-game-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.checkbox-label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--accent);
+}
+
+.add-tier-hint {
+  font-size: 0.85rem;
+  margin-top: -0.35rem;
+}
+
+.add-game-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
 .game-modal::backdrop {
   background: rgba(0, 0, 0, 0.7);
 }
@@ -273,6 +324,17 @@ textarea {
     flex-direction: row;
     justify-content: space-between;
     align-items: end;
+  }
+
+  .header-left {
+    flex-direction: row;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .header-add-btn {
+    align-self: flex-end;
   }
 
   .form-grid {

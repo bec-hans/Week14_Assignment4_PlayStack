@@ -14,10 +14,22 @@
   </head>
   <body>
     <header class="site-header">
-      <div class="logo-wrap" aria-label="PlayStack brand">
-        <div class="logo-mark" aria-hidden="true"></div>
-        <p class="eyebrow">Backlog Curation System</p>
-        <h1>PlayStack</h1>
+      <div class="header-left">
+        <div class="logo-wrap" aria-label="PlayStack brand">
+          <div class="logo-mark" aria-hidden="true"></div>
+          <p class="eyebrow">Backlog Curation System</p>
+          <h1>PlayStack</h1>
+        </div>
+        <button
+          type="button"
+          id="open-add-game"
+          class="btn btn-solid header-add-btn"
+          aria-haspopup="dialog"
+          aria-controls="add-game-modal"
+          aria-expanded="false"
+        >
+          Add a Game
+        </button>
       </div>
       <nav class="top-nav" aria-label="Primary navigation">
         <a class="nav-link active" href="./index.html">Library</a>
@@ -26,48 +38,6 @@
     </header>
 
     <main>
-      <section class="panel" aria-label="Add and discover games">
-        <div class="section-title-wrap">
-          <h2>Add & Manage Games</h2>
-          <p class="muted">Build your collection game by game.</p>
-        </div>
-
-        <form id="add-game-form" class="form-grid" aria-label="Add game form">
-          <label>
-            <span>Game Title</span>
-            <input
-              id="game-title"
-              name="title"
-              type="text"
-              placeholder="Type title..."
-              autocomplete="off"
-              required
-            />
-          </label>
-          <label>
-            <span>Platform</span>
-            <input
-              id="game-platform"
-              name="platform"
-              type="text"
-              placeholder="PC, PS5, Switch..."
-              required
-            />
-          </label>
-          <label>
-            <span>Status</span>
-            <select id="game-status" name="status" aria-label="Initial game status">
-              <option value="Wishlist">Wishlist</option>
-              <option value="Playing">Playing</option>
-              <option value="Completed">Completed</option>
-            </select>
-          </label>
-          <button type="submit" class="btn btn-solid">Add Game</button>
-        </form>
-
-        <ul id="suggestions-list" class="suggestions" aria-label="Game suggestions"></ul>
-      </section>
-
       <section class="panel controls-panel" aria-label="Search and filter games">
         <div class="section-title-wrap">
           <h2>Search & Filter</h2>
@@ -120,6 +90,71 @@
       </section>
     </main>
 
+    <dialog id="add-game-modal" class="game-modal add-game-modal" aria-labelledby="add-game-heading" aria-modal="true">
+      <div class="modal-close-wrap">
+        <button type="button" class="btn btn-ghost" id="add-game-close-x" aria-label="Close add game dialog">
+          Close
+        </button>
+      </div>
+      <h2 id="add-game-heading" class="add-modal-title">Add a Game</h2>
+      <form id="add-game-form" class="add-game-form" aria-label="Add game form" novalidate>
+        <label>
+          <span>Game Title</span>
+          <input
+            id="add-game-title"
+            name="title"
+            type="text"
+            placeholder="Type title..."
+            autocomplete="off"
+            required
+          />
+        </label>
+        <ul id="suggestions-list" class="suggestions" aria-label="Game suggestions from RAWG"></ul>
+        <label>
+          <span>Platform</span>
+          <input
+            id="add-game-platform"
+            name="platform"
+            type="text"
+            placeholder="PC, PS5, Switch..."
+            required
+          />
+        </label>
+        <label>
+          <span>Status</span>
+          <select id="add-game-status" name="status" aria-label="Game status">
+            <option value="Wishlist">Wishlist</option>
+            <option value="Playing">Playing</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </label>
+        <label>
+          <span>User Rating (1–5)</span>
+          <input
+            id="add-game-user-rating"
+            name="userRating"
+            type="number"
+            min="1"
+            max="5"
+            placeholder="Optional"
+          />
+        </label>
+        <label>
+          <span>Notes</span>
+          <textarea id="add-game-notes" name="notes" rows="4" placeholder="Personal notes or mini-review..."></textarea>
+        </label>
+        <label class="checkbox-label">
+          <input id="add-game-tier-checkbox" type="checkbox" name="addToTier" />
+          <span>Add to Tier List</span>
+        </label>
+        <p class="muted add-tier-hint">When checked, the game appears in the <strong>None</strong> tier until you move it.</p>
+        <div class="add-game-actions">
+          <button type="submit" class="btn btn-solid">Add Game</button>
+          <button type="button" class="btn" id="add-game-cancel">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+
     <dialog id="game-modal" class="game-modal" aria-labelledby="modal-title">
       <form method="dialog" class="modal-close-wrap">
         <button class="btn btn-ghost" aria-label="Close game detail view">Close</button>
@@ -129,8 +164,8 @@
 
     <script>
       window.PLAYSTACK_CONFIG = {
-        rawgApiKey: "",
-        makeWebhookUrl: ""
+        rawgApiKey: "9fec8abaa3d6405bb48c1a786884cd65",
+        makeWebhookUrl: "https://hook.us2.make.com/4e7isp9aetxo5vhwdh0prt2nbskwi965"
       };
     </script>
     <script src="./app.js"></script>

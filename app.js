@@ -11,10 +11,17 @@ const state = {
 };
 
 const refs = {
-  form: document.querySelector("#add-game-form"),
-  titleInput: document.querySelector("#game-title"),
-  platformInput: document.querySelector("#game-platform"),
-  statusInput: document.querySelector("#game-status"),
+  openAddButton: document.querySelector("#open-add-game"),
+  addGameModal: document.querySelector("#add-game-modal"),
+  addForm: document.querySelector("#add-game-form"),
+  titleInput: document.querySelector("#add-game-title"),
+  platformInput: document.querySelector("#add-game-platform"),
+  statusInput: document.querySelector("#add-game-status"),
+  userRatingInput: document.querySelector("#add-game-user-rating"),
+  notesInput: document.querySelector("#add-game-notes"),
+  tierCheckbox: document.querySelector("#add-game-tier-checkbox"),
+  addGameCancel: document.querySelector("#add-game-cancel"),
+  addGameCloseX: document.querySelector("#add-game-close-x"),
   suggestionsList: document.querySelector("#suggestions-list"),
   searchInput: document.querySelector("#search-input"),
   sortSelect: document.querySelector("#sort-select"),
@@ -58,20 +65,29 @@ const formatStars = (rating) => {
   return `${"★".repeat(rating)}${"☆".repeat(5 - rating)}`;
 };
 
-const normalizeGame = (partialGame) => ({
-  id: partialGame.id || createId(),
-  title: partialGame.title || "Untitled",
-  platform: partialGame.platform || "Unknown",
-  status: STATUSES.includes(partialGame.status) ? partialGame.status : "Wishlist",
-  genre: partialGame.genre || "Unknown",
-  releaseYear: partialGame.releaseYear || "N/A",
-  cover: partialGame.cover || "",
-  rawgRating: partialGame.rawgRating || null,
-  userRating: partialGame.userRating || 0,
-  notes: partialGame.notes || "",
-  tier: partialGame.tier || "None",
-  addedAt: partialGame.addedAt || Date.now()
-});
+const normalizeGame = (partialGame) => {
+  let tier;
+  if (Object.prototype.hasOwnProperty.call(partialGame, "tier")) {
+    tier = partialGame.tier;
+  } else {
+    tier = "None";
+  }
+
+  return {
+    id: partialGame.id || createId(),
+    title: partialGame.title || "Untitled",
+    platform: partialGame.platform || "Unknown",
+    status: STATUSES.includes(partialGame.status) ? partialGame.status : "Wishlist",
+    genre: partialGame.genre || "Unknown",
+    releaseYear: partialGame.releaseYear || "N/A",
+    cover: partialGame.cover || "",
+    rawgRating: partialGame.rawgRating || null,
+    userRating: partialGame.userRating || 0,
+    notes: partialGame.notes || "",
+    tier,
+    addedAt: partialGame.addedAt || Date.now()
+  };
+};
 
 const getUniqueGenres = () => {
   const genres = new Set(state.games.map((game) => game.genre).filter(Boolean));
@@ -289,12 +305,37 @@ const triggerAutomation = async (game) => {
   });
 };
 
+const setAddModalExpanded = (isOpen) => {
+  if (refs.openAddButton) {
+    refs.openAddButton.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  }
+};
+
+const handleCloseAddModal = () => {
+  refs.addGameModal?.close();
+};
+
+const handleOpenAddModal = () => {
+  if (!refs.addGameModal) return;
+  refs.addGameModal.showModal();
+  setAddModalExpanded(true);
+  refs.titleInput?.focus();
+};
+
 const handleAddGame = async (event) => {
   event.preventDefault();
   const title = refs.titleInput.value.trim();
   const platform = refs.platformInput.value.trim();
   const status = refs.statusInput.value;
   if (!title || !platform) return;
+
+  const userRatingRaw = Number(refs.userRatingInput?.value);
+  const userRating =
+    Number.isInteger(userRatingRaw) && userRatingRaw >= 1 && userRatingRaw <= 5
+      ? userRatingRaw
+      : 0;
+  const notes = refs.notesInput?.value?.trim() || "";
+  const addToTierList = Boolean(refs.tierCheckbox?.checked);
 
   const metadata = await fetchSingleRawg(title);
   addGame({
@@ -304,12 +345,13 @@ const handleAddGame = async (event) => {
     genre: metadata?.genre || "Unknown",
     releaseYear: metadata?.releaseYear || "N/A",
     cover: metadata?.cover || "",
-    rawgRating: metadata?.rawgRating ?? null
+    rawgRating: metadata?.rawgRating ?? null,
+    userRating,
+    notes,
+    tier: addToTierList ? "None" : null
   });
 
-  refs.form.reset();
-  state.suggestions = [];
-  renderSuggestions();
+  handleCloseAddModal();
 };
 
 const handleSuggestionSearch = async () => {
@@ -350,7 +392,7 @@ const handleCardActions = (event) => {
   }
 
   if (tierId) {
-    updateGame(tierId, { tier: "B" });
+    updateGame(tierId, { tier: "None" });
     return;
   }
 
@@ -384,8 +426,17 @@ const handleModalSave = (event) => {
 };
 
 const setupEvents = () => {
-  refs.form.addEventListener("submit", handleAddGame);
-  refs.titleInput.addEventListener("input", handleSuggestionSearch);
+  refs.openAddButton?.addEventListener("click", handleOpenAddModal);
+  refs.addForm?.addEventListener("submit", handleAddGame);
+  refs.addGameCancel?.addEventListener("click", handleCloseAddModal);
+  refs.addGameCloseX?.addEventListener("click", handleCloseAddModal);
+  refs.addGameModal?.addEventListener("close", () => {
+    setAddModalExpanded(false);
+    refs.addForm?.reset();
+    state.suggestions = [];
+    renderSuggestions();
+  });
+  refs.titleInput?.addEventListener("input", handleSuggestionSearch);
   refs.searchInput.addEventListener("input", (event) => {
     state.search = event.target.value;
     renderLists();

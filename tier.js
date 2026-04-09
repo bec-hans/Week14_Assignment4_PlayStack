@@ -26,9 +26,15 @@ const saveGames = () => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(games));
 };
 
+const getEffectiveTier = (game) => {
+  const t = game.tier;
+  if (t === null || t === undefined || t === "") return null;
+  return t;
+};
+
 const getTierGroups = () => {
   return TIERS.reduce((acc, tier) => {
-    acc[tier] = games.filter((game) => (game.tier || "None") === tier);
+    acc[tier] = games.filter((game) => getEffectiveTier(game) === tier);
     return acc;
   }, {});
 };
@@ -50,7 +56,7 @@ const renderBoard = () => {
         <label>
           <span>Change Tier</span>
           <select data-tier-change="${game.id}">
-            ${TIERS.map((value) => `<option value="${value}" ${value === (game.tier || "None") ? "selected" : ""}>${value}</option>`).join("")}
+            ${TIERS.map((value) => `<option value="${value}" ${value === getEffectiveTier(game) ? "selected" : ""}>${value}</option>`).join("")}
           </select>
         </label>
       </article>
