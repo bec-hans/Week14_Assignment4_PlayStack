@@ -333,18 +333,23 @@ const setGames = (newGames) => {
 const addGame = (incoming) => {
   const normalized = normalizeGame(incoming);
   setGames([normalized, ...state.games]);
-  triggerAutomation(normalized).catch(() => {});
+  void sendGameEventToMake("game_added", normalized);
 };
 
 const updateGame = (gameId, patch) => {
-  const updated = state.games.map((game) =>
-    game.id === gameId ? normalizeGame({ ...game, ...patch }) : game
-  );
+  const current = state.games.find((game) => game.id === gameId);
+  if (!current) return;
+  const merged = normalizeGame({ ...current, ...patch });
+  const updated = state.games.map((game) => (game.id === gameId ? merged : game));
   setGames(updated);
+  void sendGameEventToMake("game_updated", merged);
 };
 
 const deleteGame = (gameId) => {
+  const removed = state.games.find((game) => game.id === gameId);
+  if (!removed) return;
   setGames(state.games.filter((game) => game.id !== gameId));
+  void sendGameEventToMake("game_deleted", { id: removed.id });
 };
 
 const moveGameToStatusAndPosition = (gameId, nextStatus, beforeGameId = null) => {
@@ -359,6 +364,7 @@ const moveGameToStatusAndPosition = (gameId, nextStatus, beforeGameId = null) =>
       state.games.splice(beforeIndex, 0, updated);
       saveGames();
       renderLists();
+      void sendGameEventToMake("game_updated", updated);
       return;
     }
   }
@@ -378,6 +384,7 @@ const moveGameToStatusAndPosition = (gameId, nextStatus, beforeGameId = null) =>
 
   saveGames();
   renderLists();
+  void sendGameEventToMake("game_updated", updated);
 };
 
 const clearStatusDropStates = () => {
@@ -479,20 +486,6 @@ const fetchSingleRawg = async (title) => {
   const results = await searchRawg(title);
   if (!results.length) return null;
   return results[0];
-};
-
-const triggerAutomation = async (game) => {
-  const webhook = getConfig().makeWebhookUrl;
-  if (!webhook) return;
-  await fetch(webhook, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      event: "game_added",
-      game,
-      addedAtIso: new Date(game.addedAt).toISOString()
-    })
-  });
 };
 
 const setAddModalExpanded = (isOpen) => {

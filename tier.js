@@ -115,6 +115,7 @@ const moveGameToTierAndPosition = (gameId, nextTier, beforeGameId = null) => {
     if (beforeIndex >= 0) {
       games.splice(beforeIndex, 0, updated);
       saveAndRender();
+      if (!isSharedView) void sendGameEventToMake("game_updated", updated);
       return;
     }
   }
@@ -133,14 +134,17 @@ const moveGameToTierAndPosition = (gameId, nextTier, beforeGameId = null) => {
   }
 
   saveAndRender();
+  if (!isSharedView) void sendGameEventToMake("game_updated", updated);
 };
 
 const removeGameFromTierList = (gameId) => {
   const idx = games.findIndex((game) => game.id === gameId);
   if (idx < 0) return;
   const game = games[idx];
-  games[idx] = { ...game, tier: null };
+  const next = { ...game, tier: null };
+  games[idx] = next;
   saveAndRender();
+  if (!isSharedView) void sendGameEventToMake("game_updated", next);
 };
 
 const clearDropStates = () => {
