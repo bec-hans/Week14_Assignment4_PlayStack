@@ -61,8 +61,21 @@ const renderBoard = () => {
     return `
       <section class="tier-row" data-tier-row data-tier="${tier}">
         <h3><span class="tier-tag">${tier}</span> Tier</h3>
-        <div class="tier-cards-wrap" data-tier-dropzone data-tier="${tier}">
-          ${cards || '<p class="muted">No games in this tier yet.</p>'}
+        <div class="tier-row-content">
+          <div class="tier-cards-wrap" data-tier-dropzone data-tier="${tier}">
+            ${cards || '<p class="muted">No games in this tier yet.</p>'}
+          </div>
+          <div
+            class="tier-remove-dropzone"
+            data-remove-from-tier-dropzone
+            role="region"
+            aria-label="Drop a game here to remove it from the tier list"
+          >
+            <svg class="tier-remove-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4 7h16M9 7V5h6v2m-7 0l1 12h6l1-12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="tier-remove-label">remove from tier list</span>
+          </div>
         </div>
       </section>
     `;
@@ -122,9 +135,17 @@ const moveGameToTierAndPosition = (gameId, nextTier, beforeGameId = null) => {
   saveAndRender();
 };
 
+const removeGameFromTierList = (gameId) => {
+  const idx = games.findIndex((game) => game.id === gameId);
+  if (idx < 0) return;
+  const game = games[idx];
+  games[idx] = { ...game, tier: null };
+  saveAndRender();
+};
+
 const clearDropStates = () => {
   refs.board
-    .querySelectorAll(".tier-cards-wrap, .tier-game-card")
+    .querySelectorAll(".tier-cards-wrap, .tier-game-card, .tier-remove-dropzone")
     .forEach((element) => element.classList.remove("drag-over"));
 };
 
@@ -136,15 +157,23 @@ const handleDragStart = (event) => {
   if (!draggedGameId) return;
   event.dataTransfer.effectAllowed = "move";
   event.dataTransfer.setData("text/plain", draggedGameId);
+  refs.board.classList.add("tier-board--dragging");
 };
 
 const handleDragEnd = () => {
   clearDropStates();
   draggedGameId = null;
+  refs.board.classList.remove("tier-board--dragging");
 };
 
 const handleDragOver = (event) => {
   if (isSharedView) return;
+  const removeZone = event.target.closest("[data-remove-from-tier-dropzone]");
+  if (removeZone) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    return;
+  }
   const dropZone = event.target.closest("[data-tier-dropzone]");
   if (!dropZone) return;
   event.preventDefault();
@@ -153,6 +182,11 @@ const handleDragOver = (event) => {
 
 const handleDragEnter = (event) => {
   if (isSharedView) return;
+  const removeZone = event.target.closest("[data-remove-from-tier-dropzone]");
+  if (removeZone) {
+    removeZone.classList.add("drag-over");
+    return;
+  }
   const dropZone = event.target.closest("[data-tier-dropzone]");
   if (dropZone) {
     dropZone.classList.add("drag-over");
@@ -164,6 +198,11 @@ const handleDragEnter = (event) => {
 };
 
 const handleDragLeave = (event) => {
+  const removeZone = event.target.closest("[data-remove-from-tier-dropzone]");
+  if (removeZone && !removeZone.contains(event.relatedTarget)) {
+    removeZone.classList.remove("drag-over");
+  }
+
   const zone = event.target.closest(".tier-cards-wrap");
   if (zone && !zone.contains(event.relatedTarget)) {
     zone.classList.remove("drag-over");
@@ -177,12 +216,20 @@ const handleDragLeave = (event) => {
 
 const handleDrop = (event) => {
   if (isSharedView) return;
-  const dropZone = event.target.closest("[data-tier-dropzone]");
-  if (!dropZone) return;
-  event.preventDefault();
 
   const droppedId = event.dataTransfer.getData("text/plain") || draggedGameId;
   if (!droppedId) return;
+
+  const removeZone = event.target.closest("[data-remove-from-tier-dropzone]");
+  if (removeZone) {
+    event.preventDefault();
+    removeGameFromTierList(droppedId);
+    return;
+  }
+
+  const dropZone = event.target.closest("[data-tier-dropzone]");
+  if (!dropZone) return;
+  event.preventDefault();
 
   const targetTier = dropZone.getAttribute("data-tier");
   if (!targetTier || !TIERS.includes(targetTier)) return;
