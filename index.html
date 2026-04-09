@@ -202,6 +202,46 @@
       <section id="modal-body"></section>
     </dialog>
 
+    <dialog id="tier-quick-modal" class="game-modal tier-quick-modal" aria-labelledby="tier-quick-heading" aria-modal="true">
+      <div class="modal-close-wrap">
+        <button type="button" class="btn btn-ghost" id="tier-quick-close-x" aria-label="Close tier picker">Close</button>
+      </div>
+      <h2 id="tier-quick-heading" class="add-modal-title">Add to Tier List</h2>
+      <fieldset class="tier-radio-fieldset">
+        <legend class="tier-radio-legend">Tier level</legend>
+        <div class="tier-radio-grid" role="presentation">
+          <label class="tier-radio-option">
+            <input type="radio" name="quick-tier" value="S" />
+            <span>S</span>
+          </label>
+          <label class="tier-radio-option">
+            <input type="radio" name="quick-tier" value="A" />
+            <span>A</span>
+          </label>
+          <label class="tier-radio-option">
+            <input type="radio" name="quick-tier" value="B" />
+            <span>B</span>
+          </label>
+          <label class="tier-radio-option">
+            <input type="radio" name="quick-tier" value="C" />
+            <span>C</span>
+          </label>
+          <label class="tier-radio-option">
+            <input type="radio" name="quick-tier" value="D" />
+            <span>D</span>
+          </label>
+          <label class="tier-radio-option">
+            <input type="radio" name="quick-tier" value="None" />
+            <span>None</span>
+          </label>
+        </div>
+      </fieldset>
+      <div class="tier-quick-actions">
+        <button type="button" class="btn btn-solid" id="tier-quick-save">Save</button>
+        <button type="button" class="btn" id="tier-quick-close">Close</button>
+      </div>
+    </dialog>
+
     <script>
       window.PLAYSTACK_CONFIG = {
         rawgApiKey: "9fec8abaa3d6405bb48c1a786884cd65",

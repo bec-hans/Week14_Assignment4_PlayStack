@@ -326,6 +326,17 @@ textarea {
   width: min(36rem, 96vw);
 }
 
+.tier-quick-modal {
+  width: min(26rem, 94vw);
+}
+
+.tier-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
 .add-modal-title {
   margin-bottom: 0.75rem;
 }

@@ -1,10 +1,12 @@
 const STORAGE_KEY = "playstack.games";
 const STATUSES = ["Wishlist", "Playing", "Completed"];
+const TIER_OPTIONS = ["S", "A", "B", "C", "D", "None"];
 
 const state = {
   games: [],
   suggestions: [],
   activeGameId: null,
+  quickTierGameId: null,
   draggedGameId: null,
   search: "",
   sort: "recent",
@@ -31,6 +33,10 @@ const refs = {
   genreFilter: document.querySelector("#genre-filter"),
   modal: document.querySelector("#game-modal"),
   modalBody: document.querySelector("#modal-body"),
+  tierQuickModal: document.querySelector("#tier-quick-modal"),
+  tierQuickSave: document.querySelector("#tier-quick-save"),
+  tierQuickClose: document.querySelector("#tier-quick-close"),
+  tierQuickCloseX: document.querySelector("#tier-quick-close-x"),
   lists: {
     Wishlist: document.querySelector("#wishlist-list"),
     Playing: document.querySelector("#playing-list"),
@@ -563,6 +569,40 @@ const handleSuggestionSearch = async () => {
   renderSuggestions();
 };
 
+const syncQuickTierRadios = (game) => {
+  const modal = refs.tierQuickModal;
+  if (!modal) return;
+  const current =
+    game.tier !== null && game.tier !== undefined && game.tier !== "" && TIER_OPTIONS.includes(game.tier)
+      ? game.tier
+      : "None";
+  modal.querySelectorAll('input[name="quick-tier"]').forEach((input) => {
+    input.checked = input.value === current;
+  });
+};
+
+const handleOpenQuickTierModal = (gameId) => {
+  const game = state.games.find((item) => item.id === gameId);
+  if (!game || !refs.tierQuickModal) return;
+  state.quickTierGameId = gameId;
+  syncQuickTierRadios(game);
+  refs.tierQuickModal.showModal();
+};
+
+const handleCloseQuickTierModal = () => {
+  state.quickTierGameId = null;
+  refs.tierQuickModal?.close();
+};
+
+const handleQuickTierSave = () => {
+  if (!state.quickTierGameId) return;
+  const selected = refs.tierQuickModal?.querySelector('input[name="quick-tier"]:checked');
+  const value = selected?.value;
+  const tier = value && TIER_OPTIONS.includes(value) ? value : "None";
+  updateGame(state.quickTierGameId, { tier });
+  handleCloseQuickTierModal();
+};
+
 const handleSuggestionSelect = (suggestionId) => {
   const suggestion = state.suggestions.find((item) => item.id === suggestionId);
   if (!suggestion) return;
@@ -588,7 +628,7 @@ const handleCardActions = (event) => {
   }
 
   if (tierId) {
-    updateGame(tierId, { tier: "None" });
+    handleOpenQuickTierModal(tierId);
     return;
   }
 };
@@ -679,6 +719,13 @@ const setupEvents = () => {
     if (event.target.getAttribute("id") === "detail-tier-checkbox") {
       syncDetailTierPanelFromCheckbox();
     }
+  });
+
+  refs.tierQuickSave?.addEventListener("click", handleQuickTierSave);
+  refs.tierQuickClose?.addEventListener("click", handleCloseQuickTierModal);
+  refs.tierQuickCloseX?.addEventListener("click", handleCloseQuickTierModal);
+  refs.tierQuickModal?.addEventListener("close", () => {
+    state.quickTierGameId = null;
   });
 };
 
