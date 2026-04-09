@@ -149,6 +149,12 @@ const clearDropStates = () => {
     .forEach((element) => element.classList.remove("drag-over"));
 };
 
+const finishTierDragSession = () => {
+  clearDropStates();
+  draggedGameId = null;
+  refs.board.classList.remove("tier-board--dragging");
+};
+
 const handleDragStart = (event) => {
   if (isSharedView) return;
   const card = event.target.closest("[data-tier-card]");
@@ -161,9 +167,7 @@ const handleDragStart = (event) => {
 };
 
 const handleDragEnd = () => {
-  clearDropStates();
-  draggedGameId = null;
-  refs.board.classList.remove("tier-board--dragging");
+  finishTierDragSession();
 };
 
 const handleDragOver = (event) => {
@@ -224,6 +228,7 @@ const handleDrop = (event) => {
   if (removeZone) {
     event.preventDefault();
     removeGameFromTierList(droppedId);
+    finishTierDragSession();
     return;
   }
 
@@ -237,9 +242,13 @@ const handleDrop = (event) => {
   const targetCard = event.target.closest("[data-tier-card]");
   const beforeGameId = targetCard?.getAttribute("data-game-id") || null;
 
-  if (beforeGameId === droppedId) return;
+  if (beforeGameId === droppedId) {
+    finishTierDragSession();
+    return;
+  }
 
   moveGameToTierAndPosition(droppedId, targetTier, beforeGameId);
+  finishTierDragSession();
 };
 
 const copyLink = async () => {
