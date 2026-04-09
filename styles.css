@@ -362,6 +362,16 @@ textarea {
   margin-top: 0.85rem;
 }
 
+.delete-confirm-modal {
+  width: min(24rem, calc(100vw - 2rem));
+  max-width: 100%;
+}
+
+.delete-confirm-text {
+  margin-top: 0;
+  margin-bottom: 0.25rem;
+}
+
 .add-modal-title {
   margin-bottom: 0.75rem;
 }

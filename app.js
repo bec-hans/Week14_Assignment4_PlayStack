@@ -7,6 +7,7 @@ const state = {
   suggestions: [],
   activeGameId: null,
   quickTierGameId: null,
+  pendingDeleteGameId: null,
   draggedGameId: null,
   search: "",
   sort: "recent",
@@ -36,6 +37,10 @@ const refs = {
   tierQuickModal: document.querySelector("#tier-quick-modal"),
   tierQuickSave: document.querySelector("#tier-quick-save"),
   tierQuickCloseX: document.querySelector("#tier-quick-close-x"),
+  deleteConfirmModal: document.querySelector("#delete-confirm-modal"),
+  deleteConfirmMessage: document.querySelector("#delete-confirm-message"),
+  deleteConfirmConfirm: document.querySelector("#delete-confirm-confirm"),
+  deleteConfirmCancel: document.querySelector("#delete-confirm-cancel"),
   lists: {
     Wishlist: document.querySelector("#wishlist-list"),
     Playing: document.querySelector("#playing-list"),
@@ -610,10 +615,37 @@ const handleSuggestionSelect = (suggestionId) => {
   renderSuggestions();
 };
 
+const handleOpenDeleteConfirm = (gameId) => {
+  const game = state.games.find((item) => item.id === gameId);
+  if (!game || !refs.deleteConfirmModal) return;
+  state.pendingDeleteGameId = gameId;
+  if (refs.deleteConfirmMessage) {
+    refs.deleteConfirmMessage.textContent = `Are you sure you want to delete "${game.title}"? This removes it from your library.`;
+  }
+  refs.deleteConfirmModal.showModal();
+};
+
+const handleDeleteConfirmConfirmed = () => {
+  if (state.pendingDeleteGameId) {
+    deleteGame(state.pendingDeleteGameId);
+  }
+  state.pendingDeleteGameId = null;
+  refs.deleteConfirmModal?.close();
+};
+
+const handleDeleteConfirmCancelled = () => {
+  state.pendingDeleteGameId = null;
+  refs.deleteConfirmModal?.close();
+};
+
 const handleCardActions = (event) => {
-  const openId = event.target.getAttribute("data-open-detail");
-  const deleteId = event.target.getAttribute("data-delete");
-  const tierId = event.target.getAttribute("data-tier-add");
+  const openTrigger = event.target.closest("[data-open-detail]");
+  const deleteTrigger = event.target.closest("[data-delete]");
+  const tierTrigger = event.target.closest("[data-tier-add]");
+
+  const openId = openTrigger?.getAttribute("data-open-detail");
+  const deleteId = deleteTrigger?.getAttribute("data-delete");
+  const tierId = tierTrigger?.getAttribute("data-tier-add");
 
   if (openId) {
     state.activeGameId = openId;
@@ -622,7 +654,7 @@ const handleCardActions = (event) => {
   }
 
   if (deleteId) {
-    deleteGame(deleteId);
+    handleOpenDeleteConfirm(deleteId);
     return;
   }
 
@@ -724,6 +756,12 @@ const setupEvents = () => {
   refs.tierQuickCloseX?.addEventListener("click", handleCloseQuickTierModal);
   refs.tierQuickModal?.addEventListener("close", () => {
     state.quickTierGameId = null;
+  });
+
+  refs.deleteConfirmConfirm?.addEventListener("click", handleDeleteConfirmConfirmed);
+  refs.deleteConfirmCancel?.addEventListener("click", handleDeleteConfirmCancelled);
+  refs.deleteConfirmModal?.addEventListener("close", () => {
+    state.pendingDeleteGameId = null;
   });
 };
 

@@ -241,6 +241,15 @@
       </div>
     </dialog>
 
+    <dialog id="delete-confirm-modal" class="game-modal delete-confirm-modal" aria-labelledby="delete-confirm-heading" aria-modal="true">
+      <h2 id="delete-confirm-heading" class="add-modal-title">Remove this game?</h2>
+      <p id="delete-confirm-message" class="muted delete-confirm-text"></p>
+      <div class="tier-quick-actions">
+        <button type="button" class="btn" id="delete-confirm-cancel">Cancel</button>
+        <button type="button" class="btn btn-solid" id="delete-confirm-confirm">Delete</button>
+      </div>
+    </dialog>
+
     <script>
       window.PLAYSTACK_CONFIG = {
         rawgApiKey: "9fec8abaa3d6405bb48c1a786884cd65",
