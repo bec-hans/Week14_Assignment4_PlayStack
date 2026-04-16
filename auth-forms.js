@@ -80,3 +80,8 @@ refs.loginForm?.addEventListener("submit", handleLogin);
 refs.signupForm?.addEventListener("submit", handleSignup);
 
 showPanel("login");
+
+const banner = document.getElementById("firebase-config-banner");
+if (banner && window.PlaystackAuth && !PlaystackAuth.isConfigured()) {
+  banner.hidden = false;
+}

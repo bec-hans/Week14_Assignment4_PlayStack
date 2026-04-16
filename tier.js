@@ -1,7 +1,4 @@
-const getGamesStorageKey = () =>
-  typeof window.PlaystackAuth !== "undefined" && PlaystackAuth.getGamesStorageKey
-    ? PlaystackAuth.getGamesStorageKey()
-    : "playstack.games";
+const LOCAL_GAMES_KEY = "playstack.games";
 
 const TIERS = ["S", "A", "B", "C", "D", "F"];
 
@@ -14,9 +11,9 @@ let games = [];
 let isSharedView = false;
 let draggedGameId = null;
 
-const loadSavedGames = () => {
+const loadSavedGamesFromLocal = () => {
   try {
-    const saved = localStorage.getItem(getGamesStorageKey());
+    const saved = localStorage.getItem(LOCAL_GAMES_KEY);
     if (!saved) return [];
     const parsed = JSON.parse(saved);
     return Array.isArray(parsed) ? parsed : [];
@@ -25,9 +22,34 @@ const loadSavedGames = () => {
   }
 };
 
+const loadGamesForTierPage = async () => {
+  if (
+    typeof PlaystackAuth !== "undefined" &&
+    PlaystackAuth.isConfigured &&
+    PlaystackAuth.isConfigured() &&
+    PlaystackAuth.getCurrentUser()
+  ) {
+    try {
+      return await PlaystackAuth.loadGamesForActiveUser();
+    } catch (err) {
+      console.error("Tier list: could not load cloud games, using local.", err);
+      return loadSavedGamesFromLocal();
+    }
+  }
+  return loadSavedGamesFromLocal();
+};
+
 const saveGames = () => {
   if (isSharedView) return;
-  localStorage.setItem(getGamesStorageKey(), JSON.stringify(games));
+  if (
+    typeof PlaystackAuth !== "undefined" &&
+    PlaystackAuth.useCloudGames &&
+    PlaystackAuth.getCurrentUser()
+  ) {
+    void PlaystackAuth.persistGames(games);
+    return;
+  }
+  localStorage.setItem(LOCAL_GAMES_KEY, JSON.stringify(games));
 };
 
 const getEffectiveTier = (game) => {
@@ -294,17 +316,30 @@ const applySharedViewChrome = () => {
   document.title = "PlayStack | Shared Tier List";
 };
 
-const init = () => {
+const init = async () => {
   const sharedData = decodeSharedData();
   if (sharedData) {
     isSharedView = true;
     applySharedViewChrome();
     games = migrateStoredTiers(sharedData).games;
-  } else {
-    const { games: migrated, changed } = migrateStoredTiers(loadSavedGames());
-    games = migrated;
-    if (changed) saveGames();
+    renderBoard();
+    refs.board.addEventListener("dragstart", handleDragStart);
+    refs.board.addEventListener("dragend", handleDragEnd);
+    refs.board.addEventListener("dragover", handleDragOver);
+    refs.board.addEventListener("dragenter", handleDragEnter);
+    refs.board.addEventListener("dragleave", handleDragLeave);
+    refs.board.addEventListener("drop", handleDrop);
+    refs.copyButton?.addEventListener("click", copyLink);
+    return;
   }
+
+  if (typeof waitForFirebaseAuthInit === "function") {
+    await waitForFirebaseAuthInit();
+  }
+  const rawList = await loadGamesForTierPage();
+  const { games: migrated, changed } = migrateStoredTiers(rawList);
+  games = migrated;
+  if (changed) saveGames();
 
   renderBoard();
   refs.board.addEventListener("dragstart", handleDragStart);
@@ -316,4 +351,4 @@ const init = () => {
   refs.copyButton?.addEventListener("click", copyLink);
 };
 
-init();
+void init();

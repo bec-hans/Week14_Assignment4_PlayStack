@@ -34,9 +34,13 @@
         <div class="section-title-wrap">
           <h2 id="auth-heading">Sign in or create an account</h2>
         </div>
+        <p id="firebase-config-banner" class="auth-error" role="alert" hidden>
+          Firebase is not configured. Open <code>playstack-config.js</code> and paste your Firebase web app keys from
+          the Firebase console, then reload this page.
+        </p>
         <p class="muted auth-lead">
-          Passwords are hashed on your device (PBKDF2). Use HTTPS in production. Data stays in this browser unless you
-          host a backend.
+          Accounts and profiles are stored in Firebase (Google). Use HTTPS in production. Guest game data can stay in
+          this browser until you sign in (then it can sync to the cloud).
         </p>
 
         <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
@@ -120,6 +124,11 @@
       </section>
     </main>
 
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="./playstack-config.js"></script>
+    <script src="./firebase-init.js"></script>
     <script src="./auth-core.js"></script>
     <script src="./auth-nav.js"></script>
     <script src="./auth-forms.js"></script>

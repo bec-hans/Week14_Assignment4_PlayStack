@@ -826,6 +826,10 @@ textarea {
   margin: 0;
 }
 
+.auth-error code {
+  font-size: 0.85em;
+}
+
 .auth-foot {
   margin-top: 1.25rem;
 }

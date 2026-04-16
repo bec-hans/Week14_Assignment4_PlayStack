@@ -1,7 +1,5 @@
-const getGamesStorageKey = () =>
-  typeof window.PlaystackAuth !== "undefined" && PlaystackAuth.getGamesStorageKey
-    ? PlaystackAuth.getGamesStorageKey()
-    : "playstack.games";
+/** Guest / signed-out game list in this browser */
+const LOCAL_GAMES_KEY = "playstack.games";
 
 const STATUSES = ["Wishlist", "Playing", "Completed"];
 const TIER_OPTIONS = ["S", "A", "B", "C", "D", "F"];
@@ -59,8 +57,8 @@ const refs = {
 
 const getConfig = () => window.PLAYSTACK_CONFIG || {};
 
-const loadGames = () => {
-  const saved = localStorage.getItem(getGamesStorageKey());
+const loadGamesFromLocal = () => {
+  const saved = localStorage.getItem(LOCAL_GAMES_KEY);
   if (!saved) return [];
   try {
     const parsed = JSON.parse(saved);
@@ -71,7 +69,15 @@ const loadGames = () => {
 };
 
 const saveGames = () => {
-  localStorage.setItem(getGamesStorageKey(), JSON.stringify(state.games));
+  if (
+    typeof PlaystackAuth !== "undefined" &&
+    PlaystackAuth.useCloudGames &&
+    PlaystackAuth.getCurrentUser()
+  ) {
+    void PlaystackAuth.persistGames(state.games);
+    return;
+  }
+  localStorage.setItem(LOCAL_GAMES_KEY, JSON.stringify(state.games));
 };
 
 const createId = () =>
@@ -768,9 +774,37 @@ const setupEvents = () => {
   });
 };
 
-const init = () => {
-  setGames(loadGames());
-  setupEvents();
+const hydrateStateGames = async () => {
+  let list = [];
+  if (
+    typeof PlaystackAuth !== "undefined" &&
+    PlaystackAuth.isConfigured &&
+    PlaystackAuth.isConfigured() &&
+    PlaystackAuth.getCurrentUser()
+  ) {
+    try {
+      list = await PlaystackAuth.loadGamesForActiveUser();
+    } catch (err) {
+      console.error("Could not load games from cloud, using local list.", err);
+      list = loadGamesFromLocal();
+    }
+  } else {
+    list = loadGamesFromLocal();
+  }
+  state.games = list.map(normalizeGame);
+  updateGenreFilter();
+  renderLists();
 };
 
-init();
+const init = async () => {
+  setupEvents();
+  if (window.__playstackFirebase) {
+    window.__playstackFirebase.auth.onAuthStateChanged(async () => {
+      await hydrateStateGames();
+    });
+  } else {
+    await hydrateStateGames();
+  }
+};
+
+void init();
