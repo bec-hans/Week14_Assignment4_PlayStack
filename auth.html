@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PlayStack | Sign in</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Questrial&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="logo-wrap" aria-label="PlayStack brand">
+        <div class="logo-mark" aria-hidden="true"></div>
+        <p class="eyebrow">Account</p>
+        <h1>PlayStack</h1>
+      </div>
+      <div class="header-nav-row">
+        <nav class="top-nav" aria-label="Primary navigation">
+          <a class="nav-link" href="./index.html">Library</a>
+          <a class="nav-link" href="./tier.html">Tier List</a>
+          <a class="nav-link" href="./profile.html">Profile</a>
+        </nav>
+        <div class="auth-bar" id="auth-bar"></div>
+      </div>
+    </header>
+
+    <main class="auth-main">
+      <section class="panel auth-panel" aria-labelledby="auth-heading">
+        <div class="section-title-wrap">
+          <h2 id="auth-heading">Sign in or create an account</h2>
+        </div>
+        <p class="muted auth-lead">
+          Passwords are hashed on your device (PBKDF2). Use HTTPS in production. Data stays in this browser unless you
+          host a backend.
+        </p>
+
+        <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
+          <button
+            type="button"
+            class="auth-tab"
+            role="tab"
+            id="tab-login"
+            aria-selected="true"
+            aria-controls="panel-login"
+            tabindex="0"
+          >
+            Sign in
+          </button>
+          <button
+            type="button"
+            class="auth-tab"
+            role="tab"
+            id="tab-signup"
+            aria-selected="false"
+            aria-controls="panel-signup"
+            tabindex="-1"
+          >
+            Create account
+          </button>
+        </div>
+
+        <div id="panel-login" class="auth-tab-panel" role="tabpanel" aria-labelledby="tab-login">
+          <form id="login-form" class="auth-form" novalidate>
+            <p id="login-error" class="auth-error" role="alert" hidden></p>
+            <label>
+              <span>Email</span>
+              <input id="login-email" name="email" type="email" autocomplete="email" required />
+            </label>
+            <label>
+              <span>Password</span>
+              <input id="login-password" name="password" type="password" autocomplete="current-password" required />
+            </label>
+            <button type="submit" class="btn btn-solid">Sign in</button>
+          </form>
+        </div>
+
+        <div id="panel-signup" class="auth-tab-panel" role="tabpanel" aria-labelledby="tab-signup" hidden>
+          <form id="signup-form" class="auth-form" novalidate>
+            <p id="signup-error" class="auth-error" role="alert" hidden></p>
+            <label>
+              <span>Email</span>
+              <input id="signup-email" name="email" type="email" autocomplete="email" required />
+            </label>
+            <label>
+              <span>Password</span>
+              <input
+                id="signup-password"
+                name="password"
+                type="password"
+                autocomplete="new-password"
+                minlength="10"
+                required
+                aria-describedby="pw-hint"
+              />
+            </label>
+            <p id="pw-hint" class="muted">At least 10 characters.</p>
+            <label>
+              <span>Confirm password</span>
+              <input
+                id="signup-password-confirm"
+                name="passwordConfirm"
+                type="password"
+                autocomplete="new-password"
+                minlength="10"
+                required
+              />
+            </label>
+            <button type="submit" class="btn btn-solid">Create account</button>
+          </form>
+        </div>
+
+        <p class="muted auth-foot">
+          <a href="./index.html">Back to Library</a>
+        </p>
+      </section>
+    </main>
+
+    <script src="./auth-core.js"></script>
+    <script src="./auth-nav.js"></script>
+    <script src="./auth-forms.js"></script>
+  </body>
+</html>

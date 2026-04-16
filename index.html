@@ -31,10 +31,14 @@
           Add a Game
         </button>
       </div>
-      <nav class="top-nav" aria-label="Primary navigation">
-        <a class="nav-link active" href="./index.html">Library</a>
-        <a class="nav-link" href="./tier.html">Tier List</a>
-      </nav>
+      <div class="header-nav-row">
+        <nav class="top-nav" aria-label="Primary navigation">
+          <a class="nav-link active" href="./index.html">Library</a>
+          <a class="nav-link" href="./tier.html">Tier List</a>
+          <a class="nav-link" href="./profile.html">Profile</a>
+        </nav>
+        <div class="auth-bar" id="auth-bar"></div>
+      </div>
     </header>
 
     <main>
@@ -251,6 +255,8 @@
     </dialog>
 
     <script src="./playstack-config.js"></script>
+    <script src="./auth-core.js"></script>
+    <script src="./auth-nav.js"></script>
     <script src="./make-webhook.js"></script>
     <script src="./app.js"></script>
   </body>

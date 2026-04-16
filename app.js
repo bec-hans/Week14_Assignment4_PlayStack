@@ -1,4 +1,8 @@
-const STORAGE_KEY = "playstack.games";
+const getGamesStorageKey = () =>
+  typeof window.PlaystackAuth !== "undefined" && PlaystackAuth.getGamesStorageKey
+    ? PlaystackAuth.getGamesStorageKey()
+    : "playstack.games";
+
 const STATUSES = ["Wishlist", "Playing", "Completed"];
 const TIER_OPTIONS = ["S", "A", "B", "C", "D", "F"];
 
@@ -56,7 +60,7 @@ const refs = {
 const getConfig = () => window.PLAYSTACK_CONFIG || {};
 
 const loadGames = () => {
-  const saved = localStorage.getItem(STORAGE_KEY);
+  const saved = localStorage.getItem(getGamesStorageKey());
   if (!saved) return [];
   try {
     const parsed = JSON.parse(saved);
@@ -67,7 +71,7 @@ const loadGames = () => {
 };
 
 const saveGames = () => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.games));
+  localStorage.setItem(getGamesStorageKey(), JSON.stringify(state.games));
 };
 
 const createId = () =>

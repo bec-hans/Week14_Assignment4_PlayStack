@@ -21,8 +21,8 @@ body {
   padding: 1rem;
 }
 
-/* Opened from a copied share link (?data=…): tier board only, no Library nav or share UI */
-html.tier-shared-view .top-nav {
+/* Opened from a copied share link (?data=…): tier board only, no nav or share UI */
+html.tier-shared-view .header-nav-row {
   display: none;
 }
 
@@ -734,4 +734,141 @@ textarea {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-content: start;
   }
+}
+
+/* Navigation row: primary links + account controls */
+.header-nav-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.auth-bar-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.auth-email {
+  font-size: 0.85rem;
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Auth page */
+.auth-main,
+.profile-main {
+  max-width: 32rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.auth-lead {
+  margin: 0.75rem 0 1rem;
+  font-size: 0.9rem;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.auth-tab {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.auth-tab[aria-selected="true"] {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.auth-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.auth-tab-panel {
+  margin-top: 0.5rem;
+}
+
+.auth-form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.auth-form label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.auth-form input {
+  font-family: inherit;
+  padding: 0.5rem 0.65rem;
+  border: 2px solid var(--line);
+}
+
+.auth-error {
+  color: #8b0000;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.auth-foot {
+  margin-top: 1.25rem;
+}
+
+.auth-foot a {
+  color: var(--text);
+}
+
+/* Profile page */
+.profile-form {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+.profile-form label,
+.profile-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.profile-label {
+  font-size: 0.95rem;
+}
+
+.profile-form input,
+.profile-form textarea {
+  font-family: inherit;
+  padding: 0.5rem 0.65rem;
+  border: 2px solid var(--line);
+}
+
+.profile-readonly {
+  margin: 0;
+  padding: 0.5rem 0.65rem;
+  border: 2px dashed var(--line);
+  background: #f9f9f9;
+}
+
+.profile-actions {
+  margin-top: 0.25rem;
+}
+
+.profile-status {
+  margin: 0;
 }

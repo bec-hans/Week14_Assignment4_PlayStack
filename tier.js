@@ -1,4 +1,8 @@
-const STORAGE_KEY = "playstack.games";
+const getGamesStorageKey = () =>
+  typeof window.PlaystackAuth !== "undefined" && PlaystackAuth.getGamesStorageKey
+    ? PlaystackAuth.getGamesStorageKey()
+    : "playstack.games";
+
 const TIERS = ["S", "A", "B", "C", "D", "F"];
 
 const refs = {
@@ -12,7 +16,7 @@ let draggedGameId = null;
 
 const loadSavedGames = () => {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(getGamesStorageKey());
     if (!saved) return [];
     const parsed = JSON.parse(saved);
     return Array.isArray(parsed) ? parsed : [];
@@ -23,7 +27,7 @@ const loadSavedGames = () => {
 
 const saveGames = () => {
   if (isSharedView) return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(games));
+  localStorage.setItem(getGamesStorageKey(), JSON.stringify(games));
 };
 
 const getEffectiveTier = (game) => {
