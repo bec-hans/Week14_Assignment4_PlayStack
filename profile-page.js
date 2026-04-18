@@ -1,5 +1,5 @@
 /**
- * Editable profile on profile.html — requires Firebase sign-in when cloud is configured.
+ * Editable profile on profile.html — requires an active session.
  */
 const refs = {
   form: document.getElementById("profile-form"),
@@ -10,27 +10,23 @@ const refs = {
   main: document.querySelector("main")
 };
 
-const init = async () => {
-  if (typeof waitForFirebaseAuthInit === "function") {
-    await waitForFirebaseAuthInit();
-  }
-
+const init = () => {
   const user = PlaystackAuth.getCurrentUser();
   if (!user) {
     window.location.href = `./auth.html?return=${encodeURIComponent("./profile.html")}`;
     return;
   }
 
-  const profile = await PlaystackAuth.getProfile(user.id);
+  const profile = PlaystackAuth.getProfile(user.id);
   if (refs.emailDisplay) refs.emailDisplay.textContent = user.email;
   if (refs.displayName) refs.displayName.value = profile.displayName || "";
   if (refs.bio) refs.bio.value = profile.bio || "";
 
-  refs.form?.addEventListener("submit", async (event) => {
+  refs.form?.addEventListener("submit", (event) => {
     event.preventDefault();
     if (!refs.status) return;
     try {
-      await PlaystackAuth.saveProfile(user.id, {
+      PlaystackAuth.saveProfile(user.id, {
         displayName: refs.displayName?.value?.trim() || "",
         bio: refs.bio?.value?.trim() || ""
       });
@@ -47,7 +43,7 @@ const init = async () => {
 };
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => void init());
+  document.addEventListener("DOMContentLoaded", init);
 } else {
-  void init();
+  init();
 }
