@@ -194,6 +194,9 @@ p {
   border: 2px solid var(--line);
   padding: 1rem;
   position: relative;
+  /* Opaque panel so fixed decorative shapes never read through behind the brand block */
+  background-color: var(--bg);
+  z-index: 1;
 }
 
 .logo-mark {
@@ -684,14 +687,14 @@ textarea {
   flex: 1 1 auto;
   min-width: 0;
   min-height: 7rem;
-  border: 1.5px dashed var(--line);
+  border: 2px solid var(--line);
   padding: 0.65rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
   align-content: flex-start;
-  background: #060606;
-  color: #ffffff;
+  background: #a8a8a8;
+  color: var(--text);
 }
 
 .tier-remove-dropzone {
@@ -752,7 +755,7 @@ textarea {
 }
 
 .tier-cards-wrap .muted {
-  color: #f2f2f2;
+  color: var(--muted);
 }
 
 .tier-game-card {

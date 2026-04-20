@@ -1,7 +1,14 @@
-const getGamesStorageKey = () =>
-  typeof window.PlaystackAuth !== "undefined" && PlaystackAuth.getGamesStorageKey
-    ? PlaystackAuth.getGamesStorageKey()
-    : "playstack.games";
+const getLibraryGamesStorageKey = () => {
+  const auth = window.PlaystackAuth;
+  if (auth && typeof auth.getGamesStorageKey === "function") {
+    try {
+      return auth.getGamesStorageKey();
+    } catch (err) {
+      console.error("Library storage key fallback due to auth error:", err);
+    }
+  }
+  return "playstack.games";
+};
 
 const STATUSES = ["Wishlist", "Playing", "Completed"];
 const TIER_OPTIONS = ["S", "A", "B", "C", "D", "F"];
@@ -60,7 +67,7 @@ const refs = {
 const getConfig = () => window.PLAYSTACK_CONFIG || {};
 
 const loadGames = () => {
-  const saved = localStorage.getItem(getGamesStorageKey());
+  const saved = localStorage.getItem(getLibraryGamesStorageKey());
   if (!saved) return [];
   try {
     const parsed = JSON.parse(saved);
@@ -71,7 +78,11 @@ const loadGames = () => {
 };
 
 const saveGames = () => {
-  localStorage.setItem(getGamesStorageKey(), JSON.stringify(state.games));
+  try {
+    localStorage.setItem(getLibraryGamesStorageKey(), JSON.stringify(state.games));
+  } catch (err) {
+    console.error("Could not save library games:", err);
+  }
 };
 
 const createId = () =>
