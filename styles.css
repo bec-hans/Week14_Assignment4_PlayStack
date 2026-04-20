@@ -19,6 +19,121 @@ body {
   color: var(--text);
   font-family: "Questrial", Arial, sans-serif;
   padding: 1rem;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Decorative fixed backdrop: circles, squares, triangles only — kept within ~300px of viewport edges. */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-repeat: no-repeat;
+}
+
+body::before {
+  background-image:
+    radial-gradient(circle, var(--text) 0 46%, transparent 48%),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(135deg, transparent 50%, #ffffff 50%),
+    radial-gradient(circle, #ffffff 0 44%, transparent 46%),
+    linear-gradient(var(--text), var(--text)),
+    linear-gradient(225deg, transparent 50%, var(--accent) 50%),
+    radial-gradient(circle, var(--accent) 0 45%, transparent 47%),
+    linear-gradient(#ffffff, #ffffff),
+    linear-gradient(315deg, var(--text) 50%, transparent 50%),
+    radial-gradient(circle, #ffffff 0 42%, transparent 44%),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(135deg, transparent 50%, var(--text) 50%),
+    radial-gradient(circle, var(--text) 0 43%, transparent 45%),
+    linear-gradient(#ffffff, #ffffff),
+    linear-gradient(45deg, transparent 50%, var(--accent) 50%);
+  background-size:
+    26px 26px,
+    22px 22px,
+    28px 28px,
+    20px 20px,
+    18px 18px,
+    24px 24px,
+    30px 30px,
+    16px 16px,
+    22px 22px,
+    24px 24px,
+    20px 20px,
+    26px 26px,
+    28px 28px,
+    18px 18px,
+    24px 24px;
+  background-position:
+    6% 28px,
+    18% 52px,
+    42% 18px,
+    72% 36px,
+    92% 72px,
+    36px 22%,
+    88px 38%,
+    200px 52%,
+    260px 68%,
+    calc(100% - 32px) 18%,
+    calc(100% - 96px) 44%,
+    calc(100% - 220px) 62%,
+    calc(100% - 48px) 78%,
+    14% calc(100% - 40px),
+    58% calc(100% - 72px);
+}
+
+body::after {
+  background-image:
+    radial-gradient(circle, var(--accent) 0 45%, transparent 47%),
+    linear-gradient(var(--text), var(--text)),
+    linear-gradient(225deg, var(--text) 50%, transparent 50%),
+    radial-gradient(circle, #ffffff 0 46%, transparent 48%),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(135deg, transparent 50%, var(--accent) 50%),
+    radial-gradient(circle, var(--text) 0 44%, transparent 46%),
+    linear-gradient(#ffffff, #ffffff),
+    linear-gradient(315deg, transparent 50%, #ffffff 50%),
+    radial-gradient(circle, var(--accent) 0 41%, transparent 43%),
+    linear-gradient(var(--text), var(--text)),
+    linear-gradient(45deg, var(--accent) 50%, transparent 50%),
+    radial-gradient(circle, #ffffff 0 40%, transparent 42%),
+    linear-gradient(var(--accent), var(--accent)),
+    linear-gradient(135deg, #ffffff 50%, transparent 50%);
+  background-size:
+    22px 22px,
+    20px 20px,
+    26px 26px,
+    18px 18px,
+    24px 24px,
+    30px 30px,
+    28px 28px,
+    16px 16px,
+    24px 24px,
+    32px 32px,
+    18px 18px,
+    26px 26px,
+    22px 22px,
+    20px 20px,
+    28px 28px;
+  background-position:
+    28% 44px,
+    52% 20px,
+    78% 96px,
+    12% 200px,
+    44px 12%,
+    120px 28%,
+    240px 46%,
+    280px 72%,
+    calc(100% - 28px) 26%,
+    calc(100% - 72px) 52%,
+    calc(100% - 180px) 74%,
+    calc(100% - 40px) 88%,
+    8% calc(100% - 56px),
+    38% calc(100% - 36px),
+    76% calc(100% - 96px);
 }
 
 /* Opened from a copied share link (?data=…): tier board only, no nav or share UI */
