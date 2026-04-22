@@ -352,7 +352,7 @@ textarea {
   padding: 0.55rem;
   display: grid;
   gap: 0.28rem;
-  background-image: linear-gradient(transparent 94%, rgba(0, 183, 255, 0.2) 100%);
+  background-image: linear-gradient(#ffffff 94%, rgba(0, 183, 255, 0.2) 100%);
   cursor: grab;
 }
 
