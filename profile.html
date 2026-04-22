@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PlayStack | Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Questrial&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="logo-wrap" aria-label="PlayStack brand">
+        <div class="logo-mark" aria-hidden="true"></div>
+        <p class="eyebrow">Your account</p>
+        <h1>PlayStack</h1>
+      </div>
+      <div class="header-nav-row">
+        <nav class="top-nav" aria-label="Primary navigation">
+          <a class="nav-link" href="./index.html">Library</a>
+          <a class="nav-link" href="./tier.html">Tier List</a>
+          <a class="nav-link active" href="./profile.html">Profile</a>
+        </nav>
+        <div class="auth-bar" id="auth-bar"></div>
+      </div>
+    </header>
+
+    <main class="profile-main">
+      <section class="panel profile-panel" aria-labelledby="profile-heading">
+        <div class="section-title-wrap">
+          <h2 id="profile-heading">Profile</h2>
+          <p class="muted">Edit how your name and bio appear in this app (stored locally with your account).</p>
+        </div>
+
+        <form id="profile-form" class="profile-form">
+          <div class="profile-field">
+            <span class="profile-label">Email</span>
+            <p id="profile-email-readonly" class="profile-readonly" aria-live="polite"></p>
+          </div>
+          <label>
+            <span>Display name</span>
+            <input id="profile-display-name" name="displayName" type="text" maxlength="80" autocomplete="nickname" />
+          </label>
+          <label>
+            <span>Bio</span>
+            <textarea id="profile-bio" name="bio" rows="5" maxlength="2000" placeholder="A short bio..."></textarea>
+          </label>
+          <p id="profile-save-status" class="profile-status muted" role="status" hidden></p>
+          <div class="profile-actions">
+            <button type="submit" class="btn btn-solid">Save profile</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script src="./auth-core.js"></script>
+    <script src="./auth-nav.js"></script>
+    <script src="./profile-page.js"></script>
+  </body>
+</html>

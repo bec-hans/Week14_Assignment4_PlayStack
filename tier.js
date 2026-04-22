@@ -1,4 +1,15 @@
-const STORAGE_KEY = "playstack.games";
+const getTierGamesStorageKey = () => {
+  const auth = window.PlaystackAuth;
+  if (auth && typeof auth.getGamesStorageKey === "function") {
+    try {
+      return auth.getGamesStorageKey();
+    } catch (err) {
+      console.error("Tier list storage key fallback due to auth error:", err);
+    }
+  }
+  return "playstack.games";
+};
+
 const TIERS = ["S", "A", "B", "C", "D", "F"];
 
 const refs = {
@@ -12,7 +23,7 @@ let draggedGameId = null;
 
 const loadSavedGames = () => {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(getTierGamesStorageKey());
     if (!saved) return [];
     const parsed = JSON.parse(saved);
     return Array.isArray(parsed) ? parsed : [];
@@ -23,7 +34,11 @@ const loadSavedGames = () => {
 
 const saveGames = () => {
   if (isSharedView) return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(games));
+  try {
+    localStorage.setItem(getTierGamesStorageKey(), JSON.stringify(games));
+  } catch (err) {
+    console.error("Could not save tier games:", err);
+  }
 };
 
 const getEffectiveTier = (game) => {
@@ -291,25 +306,32 @@ const applySharedViewChrome = () => {
 };
 
 const init = () => {
-  const sharedData = decodeSharedData();
-  if (sharedData) {
-    isSharedView = true;
-    applySharedViewChrome();
-    games = migrateStoredTiers(sharedData).games;
-  } else {
-    const { games: migrated, changed } = migrateStoredTiers(loadSavedGames());
-    games = migrated;
-    if (changed) saveGames();
-  }
+  try {
+    const sharedData = decodeSharedData();
+    if (sharedData) {
+      isSharedView = true;
+      applySharedViewChrome();
+      games = migrateStoredTiers(sharedData).games;
+    } else {
+      const { games: migrated, changed } = migrateStoredTiers(loadSavedGames());
+      games = migrated;
+      if (changed) saveGames();
+    }
 
-  renderBoard();
-  refs.board.addEventListener("dragstart", handleDragStart);
-  refs.board.addEventListener("dragend", handleDragEnd);
-  refs.board.addEventListener("dragover", handleDragOver);
-  refs.board.addEventListener("dragenter", handleDragEnter);
-  refs.board.addEventListener("dragleave", handleDragLeave);
-  refs.board.addEventListener("drop", handleDrop);
-  refs.copyButton?.addEventListener("click", copyLink);
+    renderBoard();
+    refs.board.addEventListener("dragstart", handleDragStart);
+    refs.board.addEventListener("dragend", handleDragEnd);
+    refs.board.addEventListener("dragover", handleDragOver);
+    refs.board.addEventListener("dragenter", handleDragEnter);
+    refs.board.addEventListener("dragleave", handleDragLeave);
+    refs.board.addEventListener("drop", handleDrop);
+    refs.copyButton?.addEventListener("click", copyLink);
+  } catch (err) {
+    console.error("Tier page failed to initialize:", err);
+    games = [];
+    renderBoard();
+    refs.copyButton?.addEventListener("click", copyLink);
+  }
 };
 
 init();
