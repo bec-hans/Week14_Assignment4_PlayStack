@@ -9,8 +9,10 @@ const USERS_KEY = "playstack.auth.users";
 const SESSION_KEY = "playstack.auth.session";
 const SESSIONS_REGISTRY_KEY = "playstack.auth.sessionRegistry";
 const PROFILES_KEY = "playstack.auth.profiles";
+const RESET_TOKENS_KEY = "playstack.auth.resetTokens";
 const SESSION_MS = 14 * 24 * 60 * 60 * 1000;
 const PBKDF2_ITERATIONS = 100000;
+const RESET_TOKEN_MS = 15 * 60 * 1000;
 
 const textEncoder = new TextEncoder();
 
@@ -98,6 +100,25 @@ const saveRegistry = (list) => {
   localStorage.setItem(SESSIONS_REGISTRY_KEY, JSON.stringify(list));
 };
 
+const loadResetTokens = () => {
+  try {
+    const raw = localStorage.getItem(RESET_TOKENS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveResetTokens = (tokens) => {
+  localStorage.setItem(RESET_TOKENS_KEY, JSON.stringify(tokens));
+};
+
+const pruneResetTokens = () => {
+  const now = Date.now();
+  const valid = loadResetTokens().filter((tokenRecord) => tokenRecord.exp > now && !tokenRecord.used);
+  saveResetTokens(valid);
+};
+
 const userGamesKey = (userId) => `playstack.games.u.${userId}`;
 
 const migrateGamesToUserIfNeeded = (userId) => {
@@ -173,6 +194,9 @@ const loginAccount = async (email, password) => {
   if (!user) {
     throw new Error("Invalid email or password.");
   }
+  if (!user.saltB64 || !user.hashB64) {
+    throw new Error("Your account record is missing password data. Create a new account or reset your password.");
+  }
   const salt = base64ToUint8Array(user.saltB64);
   const hash = await pbkdf2Hash(password, salt);
   if (hash !== user.hashB64) {
@@ -181,6 +205,77 @@ const loginAccount = async (email, password) => {
   establishSession(user.id);
   migrateGamesToUserIfNeeded(user.id);
   return { id: user.id, email: user.email };
+};
+
+const requestPasswordReset = (email) => {
+  const emailLower = email.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLower)) {
+    throw new Error("Enter a valid email address.");
+  }
+  const users = loadUsers();
+  const user = users.find((u) => u.email === emailLower);
+  if (!user) {
+    throw new Error("No account was found for that email.");
+  }
+  pruneResetTokens();
+  const token = Math.floor(100000 + Math.random() * 900000).toString();
+  const exp = Date.now() + RESET_TOKEN_MS;
+  const tokens = loadResetTokens();
+  tokens.push({ token, userId: user.id, email: user.email, exp, used: false });
+  saveResetTokens(tokens);
+  return {
+    email: user.email,
+    token,
+    expiresAt: exp
+  };
+};
+
+const resetPasswordWithToken = async (email, token, newPassword) => {
+  if (!crypto.subtle) {
+    throw new Error("Password reset requires a secure context (HTTPS or localhost).");
+  }
+  const emailLower = email.trim().toLowerCase();
+  const cleanToken = (token || "").trim();
+  if (!cleanToken) {
+    throw new Error("Enter your verification code.");
+  }
+  if (newPassword.length < 10) {
+    throw new Error("Password must be at least 10 characters.");
+  }
+  pruneResetTokens();
+  const users = loadUsers();
+  const user = users.find((u) => u.email === emailLower);
+  if (!user) {
+    throw new Error("No account was found for that email.");
+  }
+  const tokens = loadResetTokens();
+  const matchingToken = tokens.find(
+    (record) => record.email === emailLower && record.token === cleanToken && !record.used && record.exp > Date.now()
+  );
+  if (!matchingToken) {
+    throw new Error("Invalid or expired verification code.");
+  }
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const hashB64 = await pbkdf2Hash(newPassword, salt);
+  const nextUsers = users.map((existingUser) => {
+    if (existingUser.id !== user.id) return existingUser;
+    return {
+      ...existingUser,
+      hashB64,
+      saltB64: arrayBufferToBase64(salt)
+    };
+  });
+  saveUsers(nextUsers);
+  saveResetTokens(
+    tokens.map((record) => {
+      if (record === matchingToken) return { ...record, used: true };
+      return record;
+    })
+  );
+  const registry = loadRegistry().filter((sessionRecord) => sessionRecord.userId !== user.id);
+  saveRegistry(registry);
+  localStorage.removeItem(SESSION_KEY);
+  return { email: user.email };
 };
 
 const logoutAccount = () => {
@@ -268,6 +363,8 @@ window.PlaystackAuth = {
   getGamesStorageKey,
   getProfile,
   saveProfile,
+  requestPasswordReset,
+  resetPasswordWithToken,
   getSessionRecord,
   LEGACY_GAMES_KEY
 };

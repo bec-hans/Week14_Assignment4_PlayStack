@@ -938,6 +938,51 @@ textarea {
   border: 2px solid var(--line);
 }
 
+.password-field-wrap {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: stretch;
+}
+
+.password-field-wrap input {
+  border-right: none;
+}
+
+.password-toggle {
+  border: 2px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  min-width: 2.6rem;
+  cursor: pointer;
+  font: inherit;
+}
+
+.password-toggle:hover,
+.password-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.auth-inline-link {
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  width: fit-content;
+  text-decoration: underline;
+}
+
+.auth-reset-modal {
+  width: min(32rem, 96vw);
+}
+
+.auth-reset-status {
+  margin: 0;
+}
+
 .auth-error {
   color: #8b0000;
   font-size: 0.9rem;

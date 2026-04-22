@@ -73,8 +73,23 @@
             </label>
             <label>
               <span>Password</span>
-              <input id="login-password" name="password" type="password" autocomplete="current-password" required />
+              <div class="password-field-wrap">
+                <input id="login-password" name="password" type="password" autocomplete="current-password" required />
+                <button
+                  type="button"
+                  class="password-toggle"
+                  data-password-toggle
+                  data-target-input="login-password"
+                  aria-label="Show password"
+                  aria-pressed="false"
+                >
+                  &#128065;
+                </button>
+              </div>
             </label>
+            <button type="button" id="open-forgot-password" class="auth-inline-link">
+              Forgot password?
+            </button>
             <button type="submit" class="btn btn-solid">Sign in</button>
           </form>
         </div>
@@ -88,27 +103,51 @@
             </label>
             <label>
               <span>Password</span>
-              <input
-                id="signup-password"
-                name="password"
-                type="password"
-                autocomplete="new-password"
-                minlength="10"
-                required
-                aria-describedby="pw-hint"
-              />
+              <div class="password-field-wrap">
+                <input
+                  id="signup-password"
+                  name="password"
+                  type="password"
+                  autocomplete="new-password"
+                  minlength="10"
+                  required
+                  aria-describedby="pw-hint"
+                />
+                <button
+                  type="button"
+                  class="password-toggle"
+                  data-password-toggle
+                  data-target-input="signup-password"
+                  aria-label="Show password"
+                  aria-pressed="false"
+                >
+                  &#128065;
+                </button>
+              </div>
             </label>
             <p id="pw-hint" class="muted">At least 10 characters.</p>
             <label>
               <span>Confirm password</span>
-              <input
-                id="signup-password-confirm"
-                name="passwordConfirm"
-                type="password"
-                autocomplete="new-password"
-                minlength="10"
-                required
-              />
+              <div class="password-field-wrap">
+                <input
+                  id="signup-password-confirm"
+                  name="passwordConfirm"
+                  type="password"
+                  autocomplete="new-password"
+                  minlength="10"
+                  required
+                />
+                <button
+                  type="button"
+                  class="password-toggle"
+                  data-password-toggle
+                  data-target-input="signup-password-confirm"
+                  aria-label="Show password"
+                  aria-pressed="false"
+                >
+                  &#128065;
+                </button>
+              </div>
             </label>
             <button type="submit" class="btn btn-solid">Create account</button>
           </form>
@@ -119,6 +158,68 @@
         </p>
       </section>
     </main>
+
+    <dialog id="forgot-password-modal" class="game-modal auth-reset-modal" aria-labelledby="forgot-password-heading" aria-modal="true">
+      <div class="modal-close-wrap">
+        <button type="button" class="btn btn-ghost" id="forgot-password-close" aria-label="Close reset password dialog">
+          Close
+        </button>
+      </div>
+      <h2 id="forgot-password-heading" class="add-modal-title">Reset password</h2>
+      <form id="forgot-password-form" class="auth-form" novalidate>
+        <p id="forgot-password-status" class="muted auth-reset-status"></p>
+        <p id="forgot-password-error" class="auth-error" role="alert" hidden></p>
+        <label>
+          <span>Email</span>
+          <input id="reset-email" name="email" type="email" autocomplete="email" required />
+        </label>
+        <button type="button" id="send-reset-code" class="btn">Send verification code</button>
+        <label>
+          <span>Verification code</span>
+          <input id="reset-token" name="token" type="text" autocomplete="one-time-code" required />
+        </label>
+        <label>
+          <span>New password</span>
+          <div class="password-field-wrap">
+            <input id="reset-password" name="password" type="password" minlength="10" autocomplete="new-password" required />
+            <button
+              type="button"
+              class="password-toggle"
+              data-password-toggle
+              data-target-input="reset-password"
+              aria-label="Show password"
+              aria-pressed="false"
+            >
+              &#128065;
+            </button>
+          </div>
+        </label>
+        <label>
+          <span>Confirm new password</span>
+          <div class="password-field-wrap">
+            <input
+              id="reset-password-confirm"
+              name="passwordConfirm"
+              type="password"
+              minlength="10"
+              autocomplete="new-password"
+              required
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              data-password-toggle
+              data-target-input="reset-password-confirm"
+              aria-label="Show password"
+              aria-pressed="false"
+            >
+              &#128065;
+            </button>
+          </div>
+        </label>
+        <button type="submit" class="btn btn-solid">Reset password</button>
+      </form>
+    </dialog>
 
     <script src="./auth-core.js"></script>
     <script src="./auth-nav.js"></script>
